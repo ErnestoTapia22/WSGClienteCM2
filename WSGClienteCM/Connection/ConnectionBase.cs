@@ -203,5 +203,35 @@ namespace WSGClienteCM.Connection
             }
             return isOracleReader;
         }
+
+        public async Task<DbDataReader> ExecuteByStoredProcedureVTAsync_TRX(string nameStore,
+        IEnumerable<DbParameter> parameters = null, DbConnection connection = null,
+         DbTransaction trx = null,
+        enuTypeDataBase typeDataBase = enuTypeDataBase.OracleVTime,
+        enuTypeExecute typeExecute = enuTypeExecute.ExecuteReader)
+        {
+
+            DbCommand cmdCommand = connection.CreateCommand();
+            cmdCommand.Transaction = trx;
+            cmdCommand.Connection = connection;
+            cmdCommand.CommandText = nameStore;
+            cmdCommand.CommandType = CommandType.StoredProcedure;
+
+            if (parameters != null)
+            {
+                foreach (DbParameter parameter in parameters)
+                {
+                    cmdCommand.Parameters.Add(parameter);
+                }
+            }
+
+            DbDataReader myReader;
+
+            await cmdCommand.ExecuteNonQueryAsync();
+            ParamsCollectionResult = cmdCommand.Parameters;
+            myReader = null;
+
+            return myReader;
+        }
     }
 }

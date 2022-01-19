@@ -14,20 +14,20 @@ namespace WSGClienteCM.Connection
         }
 
         /*DbConnection*/
-        OracleConnection ConnectionGet(ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleCanalP);
+        OracleConnection ConnectionGet(ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime);
 
         DbDataReader ExecuteByStoredProcedure(
             string nameStore,
             //ref DbParameterCollection z, 
             IEnumerable<DbParameter> parameters = null,
-            ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleCanalP,
+            ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
             ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteReader
             );
         DbParameterCollection ExecuteByStoredProcedureNonQuery(
            string nameStore,
            //ref DbParameterCollection z, 
            IEnumerable<DbParameter> parameters = null,
-           ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleCanalP,
+           ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
            ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteNonQuery
            );
 
@@ -35,5 +35,11 @@ namespace WSGClienteCM.Connection
           IEnumerable<DbParameter> parameters = null,
            ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
            ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteReader);
+
+        Task<DbDataReader> ExecuteByStoredProcedureVTAsync_TRX(string nameStore,
+        IEnumerable<DbParameter> parameters = null, DbConnection connection = null,
+         DbTransaction trx = null,
+        ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
+        ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteReader);
     }
 }

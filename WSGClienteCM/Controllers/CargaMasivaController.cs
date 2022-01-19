@@ -53,13 +53,24 @@ namespace WSGClienteCM.Controllers
         [HttpPost("Data/Insert")]
         public async Task<IActionResult> Insert(List<ClientBindingModel> request)
         {
-           
-            var _objReturn = await this._cargaMasivaService.InsertData(request);
-            if (_objReturn == null)
-            {
-                return NotFound();
+            ResponseViewModel model = new ResponseViewModel();
+            try {
+                model = await this._cargaMasivaService.InsertData(request);
+                if (model == null)
+                {
+                    return NotFound();
+                }
+                else {
+                    return Ok(model);
+                }
+
             }
-            return Ok(_objReturn);
+            catch (Exception ex) {
+                model.P_NCODE = "2";
+                model.P_SMESSAGE = ex.Message;
+                return Ok(model);
+            }
+            
         }
 
         public static void WriteErrorLog(string Message)

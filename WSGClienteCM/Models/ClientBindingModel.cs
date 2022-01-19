@@ -107,6 +107,10 @@ namespace WSGClienteCM.Models
         public string P_SREGISTCIIU { get; set; }
         public string CHECKINFOEXT { get; set; }
         public string CHECKOPCMODF { get; set; }
+        
+    
+
+ 
         //Intermediarios y contrantes
         public string P_DFE_ANIVERSARIO { get; set; }
 
