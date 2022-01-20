@@ -9,12 +9,12 @@ using WSGClienteCM.Models;
 
 namespace WSGClienteCM.Repository
 {
-    public class CargaMasivaRepository:ICargaMasivaRepository
+    public class CargaMasivaRepository : ICargaMasivaRepository
     {
         private readonly IConnectionBase _connectionBase;
         public CargaMasivaRepository(IConnectionBase ConnectionBase)
         {
-          
+
             _connectionBase = ConnectionBase;
         }
         private string Package3 = "PKG_BDU_CLIENTE_CM";
@@ -22,7 +22,7 @@ namespace WSGClienteCM.Repository
         public ResponseViewModel SetTemporaryData(List<ClientBindingModel> request)
         {
             ResponseViewModel res = new ResponseViewModel();
-           
+
             try
             {
                 OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
@@ -106,10 +106,11 @@ namespace WSGClienteCM.Repository
         {
 
             ResponseViewModel res = new ResponseViewModel();
-            try {
+            try
+            {
                 OracleParameter P_NCODE = new OracleParameter("P_ROWS_UPDATED", OracleDbType.Int32, ParameterDirection.Output);
                 List<OracleParameter> parameters = new List<OracleParameter>();
-                parameters.Add(new OracleParameter("P_NROPROCESO_CAB", OracleDbType.Varchar2,  Guid.NewGuid().ToString().Substring(0,5).GetHashCode(), ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NROPROCESO_CAB", OracleDbType.Varchar2, Guid.NewGuid().ToString().Substring(0, 5).GetHashCode(), ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SCODAPLICACION", OracleDbType.Varchar2, "TEST_QUARTZ", ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_STITLE", OracleDbType.Varchar2, "TEST_QUARTZ", ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SSPECIALITY", OracleDbType.Varchar2, "TEST_QUARTZ", ParameterDirection.Input));
@@ -126,11 +127,12 @@ namespace WSGClienteCM.Repository
 
                 }
             }
-            catch(Exception ex) {
+            catch (Exception ex)
+            {
                 throw ex;
             }
-           
-         return res;
+
+            return res;
 
         }
 
@@ -140,8 +142,8 @@ namespace WSGClienteCM.Repository
             ResponseViewModel res = new ResponseViewModel();
             try
             {
-               
-                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2 , ParameterDirection.Output);
+
+                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
                 P_MESSAGE.Size = 4000;
                 OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
                 List<OracleParameter> parameters = new List<OracleParameter>();
@@ -153,7 +155,7 @@ namespace WSGClienteCM.Repository
                 parameters.Add(new OracleParameter("P_NNUMREG", OracleDbType.Int32, item.P_NNUMREG, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SFILENAME", OracleDbType.Varchar2, item.P_SFILENAME, ParameterDirection.Input));
                 //parameters.Add(new OracleParameter("P_SSTATE", OracleDbType.Char, '0', ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input)); 
+                parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
                 parameters.Add(P_MESSAGE);
                 parameters.Add(P_COD_ERR);
 
@@ -175,7 +177,7 @@ namespace WSGClienteCM.Repository
         }
 
 
-        public async Task<ResponseViewModel> InsertDetail(List<ClientBindingModel> items,DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> InsertDetail(List<ClientBindingModel> items, DbConnection cn, DbTransaction trx)
         {
 
             ResponseViewModel res = new ResponseViewModel();
@@ -188,7 +190,6 @@ namespace WSGClienteCM.Repository
                     P_MESSAGE.Size = 4000;
                     OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
                     List<OracleParameter> parameters = new List<OracleParameter>();
-                    parameters.Add(new OracleParameter("P_SNROPROCESO", OracleDbType.Varchar2, item.P_SNOPROCESO, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_NIDDOC_TYPE", OracleDbType.Char, item.P_NIDDOC_TYPE, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_SIDDOC", OracleDbType.Varchar2, item.P_SIDDOC, ParameterDirection.Input));
@@ -234,12 +235,13 @@ namespace WSGClienteCM.Repository
                     parameters.Add(new OracleParameter("P_SPROMOTIONS", OracleDbType.Char, item.P_SPROMOTIONS, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_SDATACONSENT", OracleDbType.Char, item.P_SDATACONSENT, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_SCLIENTGOB", OracleDbType.Char, item.P_SCLIENTGOB, ParameterDirection.Input));
+                    parameters.Add(new OracleParameter("P_SNROPROCESO", OracleDbType.Varchar2, item.P_SNOPROCESO, ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_SSTATE", OracleDbType.Char, '0', ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
                     parameters.Add(P_MESSAGE);
                     parameters.Add(P_COD_ERR);
 
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_UPD_CLIENT_CM_DET"), parameters,cn, trx ,ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_UPD_CLIENT_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         if (P_COD_ERR.Value.ToString() == "1")
                         {
@@ -250,15 +252,16 @@ namespace WSGClienteCM.Repository
                         }
 
                         iteration++;
-                         if (iteration == items.Count) {
+                        if (iteration == items.Count)
+                        {
                             res.P_NCODE = "0";
                             res.P_SMESSAGE = "Registro exitoso";
                         }
-                       
+
                     }
 
                 }
-             
+
             }
             catch (Exception ex)
             {
@@ -268,6 +271,87 @@ namespace WSGClienteCM.Repository
             }
 
             return res;
+
+        }
+        public async Task<ResponseViewModel> GetStateCero()
+        {
+            List<DetailBindingModel> detail = new List<DetailBindingModel>();
+            ResponseViewModel res = new ResponseViewModel();
+            List<OracleParameter> parameters = new List<OracleParameter>();
+
+            try
+            {
+                OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                P_SMESSAGE.Size = 4000;
+                OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, detail, ParameterDirection.Output);
+                parameters.Add(P_SMESSAGE);
+                parameters.Add(P_NCODE);
+                parameters.Add(P_TABLA);
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "GET_STATE_CERO"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+
+                    detail = dr.ReadRowsList<DetailBindingModel>();
+
+                }
+                res.P_NCODE = P_NCODE.Value.ToString();
+                res.P_SMESSAGE = P_SMESSAGE.Value.ToString();
+                res.ElistDetail = detail;
+
+            }
+            catch (Exception ex)
+            {
+                res.P_NCODE = "2";
+                res.P_SMESSAGE = ex.Message;
+            }
+            return res;
+        }
+
+       public async Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value, DbConnection cn, DbTransaction trx) {
+            ResponseViewModel res = new ResponseViewModel();
+            try
+            {
+                int iteration = 0;
+                foreach (string code in processCodeToUpdate)
+                {
+                    OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                    P_MESSAGE.Size = 4000;
+                    OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                    List<OracleParameter> parameters = new List<OracleParameter>();
+              
+                    parameters.Add(new OracleParameter("P_CODE", OracleDbType.Varchar2, code, ParameterDirection.Input));
+                   
+                    parameters.Add(P_MESSAGE);
+                    parameters.Add(P_COD_ERR);
+
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "UPD_STATE_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    {
+                        if (P_COD_ERR.Value.ToString() == "1")
+                        {
+                            res.P_NCODE = P_COD_ERR.Value.ToString();
+                            res.P_SMESSAGE = P_MESSAGE.Value.ToString();
+                            break;
+
+                        }
+
+                        iteration++;
+                        if (iteration == processCodeToUpdate.Count)
+                        {
+                            res.P_NCODE = "0";
+                            res.P_SMESSAGE = "Modificación exitosa";
+                        }
+
+                    }
+
+                }
+            }
+            catch (Exception ex) {
+                res.P_NCODE = "2";
+                res.P_SMESSAGE = ex.Message;
+
+            }
+            return res;
+
 
         }
     }

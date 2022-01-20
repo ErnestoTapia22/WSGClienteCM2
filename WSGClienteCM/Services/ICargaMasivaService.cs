@@ -6,7 +6,7 @@ namespace WSGClienteCM.Services
 {
     public interface ICargaMasivaService
     {
-         Task<ResponseViewModel> ValidarClienteMasivo(List<ClientBindingModel> request);
+        Task<ResponseViewModel> InitProcess();
         Task<ResponseViewModel> InsertData(List<ClientBindingModel> request);
     }
 }

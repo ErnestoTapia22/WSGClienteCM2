@@ -41,8 +41,8 @@ namespace WSGClienteCM.Controllers
         [HttpPost("Job/InitProcess")]
         public IActionResult InitProcess()
         {
-            List<ClientBindingModel> items  = new List<ClientBindingModel>();
-            var _objReturn = this._cargaMasivaService.ValidarClienteMasivo(items);
+           
+            var _objReturn = this._cargaMasivaService.InitProcess();
             if (_objReturn == null)
             {
                 return NotFound();

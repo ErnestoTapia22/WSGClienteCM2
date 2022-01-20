@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using WSGClienteCM.Connection;
 using WSGClienteCM.Models;
 using WSGClienteCM.Repository;
+using System.Linq;
 
 namespace WSGClienteCM.Services
 {
@@ -19,18 +20,76 @@ namespace WSGClienteCM.Services
             this._connectionBase = connectionBase;
         }
 
-        public async Task<ResponseViewModel> ValidarClienteMasivo(List<ClientBindingModel> request)
+        public async Task<ResponseViewModel> InitProcess()
         {
-            string processId = request[0].P_SNOPROCESO;
+            DbConnection DataConnection = _connectionBase.ConnectionGet(ConnectionBase.enuTypeDataBase.OracleVTime);
+            DbTransaction trx = null;
             ResponseViewModel responseViewModel = new ResponseViewModel();
             try
             {
-                return await Task.FromResult(responseViewModel);
+                // selecciona registros con estado 0
+                responseViewModel = await _cargaMasivaRepository.GetStateCero();
+                if (responseViewModel.P_NCODE == "0" && responseViewModel.ElistDetail.Count > 0)
+                {
+                    //selecciona los codigos para modificar estado a 1=en proceso
+                    List<string> processCodeToUpdate = new List<string>();
+                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x=>x.P_SNOPROCESO).Select(p=>p.First().P_SNOPROCESO).ToList();
+                    DataConnection.Open();
+                    trx = DataConnection.BeginTransaction();
+                    ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate,"1",DataConnection,trx);
+                    if (res.P_NCODE == "0")
+                    {
+
+                        foreach (DetailBindingModel row in responseViewModel.ElistDetail) {
+                            DetailBindingModel detailState = new DetailBindingModel();
+                            // primera validacion tipo y numero de documento
+                            if (row.P_NIDDOC_TYPE == "" || row.P_SIDDOC == "")
+                            {
+                                detailState.P_NIDDOC_TYPE = "No tiene el tipo de documento o el número de documento";
+                                detailState.P_SIDDOC = "No tiene el tipo de documento o el número de documento";
+
+                            }
+                            else { 
+                               
+                             
+                            
+                            }
+                           
+                          
+                        
+                        }
+
+                    }
+                    else {
+                        responseViewModel = res;
+                        trx.Rollback(); 
+                    
+                    }
+
+                }
+                else {
+
+                    responseViewModel.P_NCODE = "0";
+                    responseViewModel.P_SMESSAGE = "No hay registros para procesar";
+                }
+
+               
             }
             catch (Exception ex)
             {
-                throw new WSGClienteCMException(Constants.MsgGetError, Convert.ToInt32(processId));
+                if (trx != null) trx.Rollback();
+                responseViewModel.P_NCODE = "0";
+                responseViewModel.P_SMESSAGE = ex.Message;
             }
+            finally
+            {
+                if (DataConnection.State == ConnectionState.Open)
+                {
+                    DataConnection.Close();
+                }
+                trx.Dispose();
+            }
+            return responseViewModel;
         }
        public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
         {

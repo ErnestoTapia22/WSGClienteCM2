@@ -13,6 +13,7 @@ namespace WSGClienteCM.Models
         public int? P_NIDCM { get; set; }
         public List<ClientViewModel> EListClient { get; set; }
         public List<ListViewErrores> EListErrores { get; set; }
+        public List<DetailBindingModel> ElistDetail { get; set; }
         public Object Data { get; set; }
     }
 }
