@@ -25,34 +25,55 @@ namespace WSGClienteCM.Services
             DbConnection DataConnection = _connectionBase.ConnectionGet(ConnectionBase.enuTypeDataBase.OracleVTime);
             DbTransaction trx = null;
             ResponseViewModel responseViewModel = new ResponseViewModel();
+            responseViewModel.EListErrores = new List<ListViewErrores>();
+
             try
             {
                 // selecciona registros con estado 0
                 responseViewModel = await _cargaMasivaRepository.GetStateCero();
-                if (responseViewModel.P_NCODE == "0" && responseViewModel.ElistDetail.Count > 0)
+                if (responseViewModel.P_COD_ERR == "0" && responseViewModel.ElistDetail.Count > 0)
                 {
                     //selecciona los codigos para modificar estado a 1=en proceso
                     List<string> processCodeToUpdate = new List<string>();
-                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x=>x.P_SNOPROCESO).Select(p=>p.First().P_SNOPROCESO).ToList();
+                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x=>x.SNROPROCESO_CAB).Select(p=>p.First().SNROPROCESO_CAB).ToList();
                     DataConnection.Open();
                     trx = DataConnection.BeginTransaction();
                     ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate,"1",DataConnection,trx);
-                    if (res.P_NCODE == "0")
+                    if (res.P_COD_ERR == "0")
                     {
 
                         foreach (DetailBindingModel row in responseViewModel.ElistDetail) {
                             DetailBindingModel detailState = new DetailBindingModel();
+                            ResponseViewModel resval = new ResponseViewModel();
                             // primera validacion tipo y numero de documento
-                            if (row.P_NIDDOC_TYPE == "" || row.P_SIDDOC == "")
+                            if (row.NIDDOC_TYPE == "" || row.SIDDOC == "")// validar bien paso tipo doc =0
                             {
-                                detailState.P_NIDDOC_TYPE = "No tiene el tipo de documento o el número de documento";
-                                detailState.P_SIDDOC = "No tiene el tipo de documento o el número de documento";
+                                detailState.NIDDOC_TYPE = "No tiene el tipo de documento o el número de documento";
+                                detailState.SIDDOC = "No tiene el tipo de documento o el número de documento";
 
                             }
-                            else { 
-                               
-                             
-                            
+                            else {
+                                // validacion
+                                resval = await _cargaMasivaRepository.ValidateRow(row, DataConnection, trx);
+
+                                if (resval.EListErrores.Count > 0)
+                                {
+                                    DetailBindingModel detailStateParsed = new DetailBindingModel();
+                                    ResponseViewModel resInsertState = new ResponseViewModel();
+                                    ListViewErrores error = new ListViewErrores();
+                                    detailStateParsed = ParseErrorToModel(resval.EListErrores);
+                                    detailStateParsed.NNROPROCESO_DET = row.NNROPROCESO_DET;
+                                    resInsertState = await _cargaMasivaRepository.SaveStateRow(detailStateParsed, DataConnection, trx);
+                                    if (resInsertState.P_COD_ERR != "0") {
+                                        error.SMENSAJE = "No se puedo insertar el estado del registro con id: " + row.NNROPROCESO_DET + "_" + resInsertState.P_MESSAGE;
+                                        error.SGRUPO = "GES_CAR_MAS_CLI_DET_STATE";
+                                        responseViewModel.EListErrores.Add(error);
+                                    }
+                                }
+                                else { 
+                                   //update
+
+                                }
                             }
                            
                           
@@ -69,8 +90,8 @@ namespace WSGClienteCM.Services
                 }
                 else {
 
-                    responseViewModel.P_NCODE = "0";
-                    responseViewModel.P_SMESSAGE = "No hay registros para procesar";
+                    responseViewModel.P_COD_ERR = "0";
+                    responseViewModel.P_MESSAGE = "No hay registros para procesar";
                 }
 
                
@@ -78,8 +99,8 @@ namespace WSGClienteCM.Services
             catch (Exception ex)
             {
                 if (trx != null) trx.Rollback();
-                responseViewModel.P_NCODE = "0";
-                responseViewModel.P_SMESSAGE = ex.Message;
+                responseViewModel.P_COD_ERR = "0";
+                responseViewModel.P_MESSAGE = ex.Message;
             }
             finally
             {
@@ -105,14 +126,14 @@ namespace WSGClienteCM.Services
                     DataConnection.Open();
                     trx = DataConnection.BeginTransaction();
                     responseViewModel = await _cargaMasivaRepository.InsertHeader(request[0], DataConnection, trx);
-                    if (responseViewModel.P_NCODE == "0")
+                    if (responseViewModel.P_COD_ERR == "0")
                     {
 
                         responseViewModel = await _cargaMasivaRepository.InsertDetail(request, DataConnection, trx);
 
-                        if (responseViewModel.P_NCODE == "0")
+                        if (responseViewModel.P_COD_ERR == "0")
                         {
-                            responseViewModel.P_SMESSAGE = "Se registró correctamente la trama";
+                            responseViewModel.P_MESSAGE = "Se registró correctamente la trama";
                             trx.Commit();
                         }
                         else
@@ -129,7 +150,7 @@ namespace WSGClienteCM.Services
                 }
                 else
                 {
-                    responseViewModel.P_SMESSAGE = Constants.MsgGetError;
+                    responseViewModel.P_MESSAGE = Constants.MsgGetError;
                    
                 }
 
@@ -149,6 +170,17 @@ namespace WSGClienteCM.Services
                 trx.Dispose();
             }
             return responseViewModel;
+        }
+
+        private DetailBindingModel ParseErrorToModel(List<ListViewErrores> items) { 
+            DetailBindingModel model = new DetailBindingModel();
+            foreach (ListViewErrores item in items)
+            {
+                if (model.GetType().GetProperty(item.SCAMPO) != null) {
+                    model.GetType().GetProperty(item.SCAMPO).SetValue(model, item.SMENSAJE, null);
+                };
+            }
+            return model;
         }
     }
 }

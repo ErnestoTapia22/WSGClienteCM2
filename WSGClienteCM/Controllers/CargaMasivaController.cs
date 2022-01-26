@@ -39,10 +39,10 @@ namespace WSGClienteCM.Controllers
         //}
 
         [HttpPost("Job/InitProcess")]
-        public IActionResult InitProcess()
+        public async Task<IActionResult> InitProcess()
         {
            
-            var _objReturn = this._cargaMasivaService.InitProcess();
+            var _objReturn = await this._cargaMasivaService.InitProcess();
             if (_objReturn == null)
             {
                 return NotFound();
@@ -66,54 +66,13 @@ namespace WSGClienteCM.Controllers
 
             }
             catch (Exception ex) {
-                model.P_NCODE = "2";
-                model.P_SMESSAGE = ex.Message;
+                model.P_COD_ERR = "2";
+                model.P_MESSAGE = ex.Message;
                 return Ok(model);
             }
             
         }
 
-        public static void WriteErrorLog(string Message)
-        {
-
-
-            StreamWriter sw = null;
-
-
-            try
-            {
-                sw = new StreamWriter(@"D:\LogFile.txt", true);
-                sw.WriteLine(DateTime.Now.ToString() + ": " + Message);
-                sw.Flush();
-                sw.Close();
-
-            }
-            catch (Exception e)
-            {
-                WriteErrorLog(e, "writeerror mess");
-            }
-
-        }
-
-        public static void WriteErrorLog(Exception ex, String datos)
-        {
-            StreamWriter sw = null;
-
-            try
-            {
-                sw = new StreamWriter(@"D:\LogFile.txt", true);
-                sw.WriteLine(DateTime.Now.ToString() + ": " + ex.Source.ToString().Trim() + "; " + ex.Message.ToString().Trim());
-                sw.WriteLine("en " + datos);
-                sw.Flush();
-                sw.Close();
-            }
-            catch (Exception e)
-            {
-                var es = ex;
-            }
-        }
-
-      
 
     }
 }

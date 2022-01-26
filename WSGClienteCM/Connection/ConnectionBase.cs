@@ -226,11 +226,17 @@ namespace WSGClienteCM.Connection
             }
 
             DbDataReader myReader;
+            if (((cmdCommand.Parameters.Contains("C_TABLE") || IsOracleReader(cmdCommand))) && typeExecute == enuTypeExecute.ExecuteReader)
+            {
+                myReader = (OracleDataReader)await cmdCommand.ExecuteReaderAsync();
+            }
+            else
+            {
 
-            await cmdCommand.ExecuteNonQueryAsync();
-            ParamsCollectionResult = cmdCommand.Parameters;
-            myReader = null;
-
+                await cmdCommand.ExecuteNonQueryAsync();
+                ParamsCollectionResult = cmdCommand.Parameters;
+                myReader = null;
+            }
             return myReader;
         }
     }

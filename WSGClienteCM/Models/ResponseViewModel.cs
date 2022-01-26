@@ -5,8 +5,9 @@ namespace WSGClienteCM.Models
 {
     public class ResponseViewModel
     {
-        public string P_NCODE { get; set; }
-        public string P_SMESSAGE { get; set; }
+        public string P_COD_ERR { get; set; }
+        public string P_MESSAGE { get; set; }
+        public string P_CAMPO { get; set; }
         public string P_SEMAIL { get; set; }
         public string P_SCOD_CLIENT { get; set; }
         public string P_SURL_SISTEMA { get; set; }
