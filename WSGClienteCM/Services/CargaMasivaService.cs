@@ -16,7 +16,7 @@ using WSGClienteCM.Utils;
 
 namespace WSGClienteCM.Services
 {
-    public class CargaMasivaService:ICargaMasivaService
+    public class CargaMasivaService : ICargaMasivaService
     {
         private readonly ICargaMasivaRepository _cargaMasivaRepository;
         private readonly IConnectionBase _connectionBase;
@@ -43,14 +43,15 @@ namespace WSGClienteCM.Services
                 {
                     //selecciona los codigos para modificar estado a 1=en proceso
                     List<string> processCodeToUpdate = new List<string>();
-                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x=>x.SNROPROCESO_CAB).Select(p=>p.First().SNROPROCESO_CAB).ToList();
+                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
                     DataConnection.Open();
                     trx = DataConnection.BeginTransaction();
-                    ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate,"1",DataConnection,trx);
+                    ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "1", DataConnection, trx);
                     if (res.P_COD_ERR == "0")
                     {
-                       
-                        foreach (DetailBindingModel row in responseViewModel.ElistDetail) {
+
+                        foreach (DetailBindingModel row in responseViewModel.ElistDetail)
+                        {
                             DetailBindingModel detailState = new DetailBindingModel();
                             ResponseViewModel resval = new ResponseViewModel();
                             // primera validacion tipo y numero de documento
@@ -60,7 +61,8 @@ namespace WSGClienteCM.Services
                                 detailState.SIDDOC = "No tiene el tipo de documento o el número de documento";
 
                             }
-                            else {
+                            else
+                            {
                                 // validacion
                                 resval = await _cargaMasivaRepository.ValidateRow(row, DataConnection, trx);
 
@@ -72,14 +74,16 @@ namespace WSGClienteCM.Services
                                     detailStateParsed = ParseErrorToModel(resval.EListErrores);
                                     detailStateParsed.NNROPROCESO_DET = row.NNROPROCESO_DET;
                                     resInsertState = await _cargaMasivaRepository.SaveStateRow(detailStateParsed, DataConnection, trx);
-                                    if (resInsertState.P_COD_ERR != "0") {
+                                    if (resInsertState.P_COD_ERR != "0")
+                                    {
                                         error.SMENSAJE = "No se puedo insertar el estado del registro con id: " + row.NNROPROCESO_DET + "_" + resInsertState.P_MESSAGE;
                                         error.SGRUPO = "GES_CAR_MAS_CLI_DET_STATE";
                                         responseViewModel.EListErrores.Add(error);
                                     }
                                 }
-                                else {
-                                   
+                                else
+                                {
+
                                     //Consultar
                                     PostRequest postRequest = new PostRequest
                                     {
@@ -92,37 +96,41 @@ namespace WSGClienteCM.Services
                                     string result = await PostRequest(_appSettings.ClientService, postRequest);
                                     ResponseViewModel resClientService = new ResponseViewModel();
                                     resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
-                                    if (resClientService != null) {
-                                        if (resClientService.P_COD_ERR != "0") {
-                                          
+                                    if (resClientService != null)
+                                    {
+                                        if (resClientService.P_COD_ERR != "0")
+                                        {
+
                                         }
-                                    
+
                                     }
 
 
 
                                 }
                             }
-                           
-                          
-                        
+
+
+
                         }
 
                     }
-                    else {
+                    else
+                    {
                         responseViewModel = res;
-                        trx.Rollback(); 
-                    
+                        trx.Rollback();
+
                     }
 
                 }
-                else {
+                else
+                {
 
                     responseViewModel.P_COD_ERR = "0";
                     responseViewModel.P_MESSAGE = "No hay registros para procesar";
                 }
 
-               
+
             }
             catch (Exception ex)
             {
@@ -140,7 +148,7 @@ namespace WSGClienteCM.Services
             }
             return responseViewModel;
         }
-       public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
+        public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
         {
             string processId = request[0].P_SNOPROCESO;
             ResponseViewModel responseViewModel = new ResponseViewModel();
@@ -170,7 +178,8 @@ namespace WSGClienteCM.Services
                             trx.Rollback();
                         }
                     }
-                    else {
+                    else
+                    {
 
                         trx.Rollback();
                     }
@@ -179,20 +188,21 @@ namespace WSGClienteCM.Services
                 else
                 {
                     responseViewModel.P_MESSAGE = Constants.MsgGetError;
-                   
+
                 }
 
-             
+
             }
             catch (Exception ex)
             {
                 if (trx != null) trx.Rollback();
-               
+
                 throw new WSGClienteCMException(ex.Message);
             }
             finally
             {
-                if (DataConnection.State == ConnectionState.Open) {
+                if (DataConnection.State == ConnectionState.Open)
+                {
                     DataConnection.Close();
                 }
                 trx.Dispose();
@@ -200,27 +210,33 @@ namespace WSGClienteCM.Services
             return responseViewModel;
         }
 
-        private DetailBindingModel ParseErrorToModel(List<ListViewErrores> items) { 
+        private DetailBindingModel ParseErrorToModel(List<ListViewErrores> items)
+        {
             DetailBindingModel model = new DetailBindingModel();
             foreach (ListViewErrores item in items)
             {
-                if (model.GetType().GetProperty(item.SCAMPO) != null) {
+                if (model.GetType().GetProperty(item.SCAMPO) != null)
+                {
                     model.GetType().GetProperty(item.SCAMPO).SetValue(model, item.SMENSAJE, null);
                 };
             }
             return model;
         }
-        public async Task<string> PostRequest(string url, object postObject, string token = null) {
+        public async Task<string> PostRequest(string url, object postObject, string token = null)
+        {
 
             string result = null;
 
-            try {
+            try
+            {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 UriBuilder builder = new UriBuilder(url);
                 string cadena = builder.Uri.ToString();
-                using (HttpClient client  = new HttpClient()) {
+                using (HttpClient client = new HttpClient())
+                {
                     client.DefaultRequestHeaders.Clear();
-                    if (token != null) {
+                    if (token != null)
+                    {
                         client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
                     }
                     string json = JsonConvert.SerializeObject(postObject);
@@ -231,15 +247,27 @@ namespace WSGClienteCM.Services
                 }
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
 
                 throw ex;
-              
+
             }
 
             return result;
 
-        }
+            public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
+            {
+                return _cargaMasivaRepository.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
+            }
+            public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
+            {
+                return _cargaMasivaRepository.ObtenerTramaEnvioErrores(P_SNOPROCESO);
+            }
+            public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
+            {
+                return _cargaMasivaRepository.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
+            }
 
+        }
     }
-}
