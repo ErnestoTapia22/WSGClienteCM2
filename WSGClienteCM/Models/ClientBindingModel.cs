@@ -147,6 +147,14 @@ namespace WSGClienteCM.Models
         public string P_SDATACONSENT { get; set; }
         public string P_SCLIENTGOB { get; set; }
 
+        //hcama@mg 26.01.2021 ini //  Trama errores
+        public string P_SCOLUMNNAME { get; set; }
+        public string P_SCOLUMNVALUE { get; set; }
+        public string P_SERRORVALUE { get; set; }
+        public string P_NUSERNAME { get; set; }
+
+        //hcama@mg 26.01.2021 fin
+
         public List<DocumentosBindingModel> ElistDocumentClient { get; set; }
         public List<InfoBancariaBindingModel> ElistInfoBancariaClient { get; set; }
 
