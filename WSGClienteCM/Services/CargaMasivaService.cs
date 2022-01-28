@@ -49,7 +49,7 @@ namespace WSGClienteCM.Services
                     ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "1", DataConnection, trx);
                     if (res.P_COD_ERR == "0")
                     {
-
+                       
                         foreach (DetailBindingModel row in responseViewModel.ElistDetail)
                         {
                             DetailBindingModel detailState = new DetailBindingModel();
@@ -63,9 +63,11 @@ namespace WSGClienteCM.Services
                             }
                             else
                             {
+                              
+                                
                                 // validacion
                                 resval = await _cargaMasivaRepository.ValidateRow(row, DataConnection, trx);
-
+                              
                                 if (resval.EListErrores.Count > 0)
                                 {
                                     DetailBindingModel detailStateParsed = new DetailBindingModel();
@@ -74,6 +76,7 @@ namespace WSGClienteCM.Services
                                     detailStateParsed = ParseErrorToModel(resval.EListErrores);
                                     detailStateParsed.NNROPROCESO_DET = row.NNROPROCESO_DET;
                                     resInsertState = await _cargaMasivaRepository.SaveStateRow(detailStateParsed, DataConnection, trx);
+                                  
                                     if (resInsertState.P_COD_ERR != "0")
                                     {
                                         error.SMENSAJE = "No se puedo insertar el estado del registro con id: " + row.NNROPROCESO_DET + "_" + resInsertState.P_MESSAGE;
@@ -100,7 +103,10 @@ namespace WSGClienteCM.Services
                                     {
                                         if (resClientService.P_COD_ERR != "0")
                                         {
-
+                                            ClientBindingModel resToSend = new ClientBindingModel();
+                                            resToSend = CompleteFields(resClientService.EListClient[0], row);
+                                            
+                                            string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
                                         }
 
                                     }
@@ -113,6 +119,7 @@ namespace WSGClienteCM.Services
 
 
                         }
+                        trx.Commit();
 
                     }
                     else
@@ -258,7 +265,15 @@ namespace WSGClienteCM.Services
 
 
         }
+        public ClientBindingModel CompleteFields(ClientViewModel resMaster,DetailBindingModel resToComplete) {
 
+            ClientBindingModel clientBindingModel = new ClientBindingModel();
+            clientBindingModel.P_SNOPROCESO = resToComplete.SNROPROCESO_CAB;
+            clientBindingModel.P_NNUMREG = resToComplete.
+
+
+            return clientBindingModel;
+        }
 
         public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
         {
