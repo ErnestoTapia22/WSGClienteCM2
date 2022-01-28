@@ -4,8 +4,12 @@ namespace WSGClienteCM.Models
 {
     public class DetailBindingModel
     {
-        public Decimal? NNROPROCESO_DET { get; set; }
+        //Cabecera
+        public string SCODAPLICACION { get; set; }
+        public Int64 NUSERCODE { get; set; }
         public string SNROPROCESO_CAB { get; set; }
+
+        public Decimal? NNROPROCESO_DET { get; set; }
         public string SIDDOC { get; set; }
         public string NIDDOC_TYPE { get; set; }
         //Client

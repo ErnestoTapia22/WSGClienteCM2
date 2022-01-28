@@ -9,6 +9,7 @@ namespace WSGClienteCM.Models
         public string P_SNOPROCESO { get; set; }
         public Int64 P_NNUMREG { get; set; }
         public string P_SFILENAME { get; set; }
+        public Int64 P_NDETAILCOUNT { get; set; }
         /* Fin */
         public string SORIGEN { get; set; }
         public string TIPO_CLIE { get; set; }

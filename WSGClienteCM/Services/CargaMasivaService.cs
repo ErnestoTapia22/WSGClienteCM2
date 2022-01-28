@@ -7,6 +7,12 @@ using WSGClienteCM.Connection;
 using WSGClienteCM.Models;
 using WSGClienteCM.Repository;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using Newtonsoft.Json;
+using System.Text;
+using Microsoft.Extensions.Options;
+using WSGClienteCM.Utils;
 
 namespace WSGClienteCM.Services
 {
@@ -14,10 +20,12 @@ namespace WSGClienteCM.Services
     {
         private readonly ICargaMasivaRepository _cargaMasivaRepository;
         private readonly IConnectionBase _connectionBase;
-        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase )
+        private readonly AppSettings _appSettings;
+        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase, IOptions<AppSettings> appSettings)
         {
             this._cargaMasivaRepository = cargaMasivaRepository;
             this._connectionBase = connectionBase;
+            this._appSettings = appSettings.Value;
         }
 
         public async Task<ResponseViewModel> InitProcess()
@@ -41,7 +49,7 @@ namespace WSGClienteCM.Services
                     ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate,"1",DataConnection,trx);
                     if (res.P_COD_ERR == "0")
                     {
-
+                       
                         foreach (DetailBindingModel row in responseViewModel.ElistDetail) {
                             DetailBindingModel detailState = new DetailBindingModel();
                             ResponseViewModel resval = new ResponseViewModel();
@@ -70,8 +78,28 @@ namespace WSGClienteCM.Services
                                         responseViewModel.EListErrores.Add(error);
                                     }
                                 }
-                                else { 
-                                   //update
+                                else {
+                                   
+                                    //Consultar
+                                    PostRequest postRequest = new PostRequest
+                                    {
+                                        P_NUSERCODE = row.NUSERCODE.ToString(),
+                                        P_NIDDOC_TYPE = row.NIDDOC_TYPE,
+                                        P_SIDDOC = row.SIDDOC,
+                                        P_CodAplicacion = row.SCODAPLICACION,
+                                        P_TipOper = "CON"
+                                    };
+                                    string result = await PostRequest(_appSettings.ClientService, postRequest);
+                                    ResponseViewModel resClientService = new ResponseViewModel();
+                                    resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
+                                    if (resClientService != null) {
+                                        if (resClientService.P_COD_ERR != "0") {
+                                          
+                                        }
+                                    
+                                    }
+
+
 
                                 }
                             }
@@ -182,5 +210,36 @@ namespace WSGClienteCM.Services
             }
             return model;
         }
+        public async Task<string> PostRequest(string url, object postObject, string token = null) {
+
+            string result = null;
+
+            try {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+                UriBuilder builder = new UriBuilder(url);
+                string cadena = builder.Uri.ToString();
+                using (HttpClient client  = new HttpClient()) {
+                    client.DefaultRequestHeaders.Clear();
+                    if (token != null) {
+                        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+                    }
+                    string json = JsonConvert.SerializeObject(postObject);
+                    StringContent stringContent = new StringContent(json, UnicodeEncoding.UTF8, "application/json");
+                    HttpResponseMessage response = await client.PostAsync(builder.Uri, stringContent);
+                    result = await response.Content.ReadAsStringAsync();
+
+                }
+
+            }
+            catch (Exception ex) {
+
+                throw ex;
+              
+            }
+
+            return result;
+
+        }
+
     }
 }

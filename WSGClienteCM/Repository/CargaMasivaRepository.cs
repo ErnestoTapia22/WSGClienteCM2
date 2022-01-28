@@ -71,7 +71,7 @@ namespace WSGClienteCM.Repository
                 parameters.Add(new OracleParameter("P_STITLE", OracleDbType.Varchar2, item.P_NTITLE, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SSPECIALITY", OracleDbType.Varchar2, item.P_NSPECIALITY, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_NUSERCODE", OracleDbType.Int32, item.P_NUSERCODE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NNUMREG", OracleDbType.Int32, item.P_NNUMREG, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NDETAILCOUNT", OracleDbType.Int32, item.P_NDETAILCOUNT, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SFILENAME", OracleDbType.Varchar2, item.P_SFILENAME, ParameterDirection.Input));
                 //parameters.Add(new OracleParameter("P_SSTATE", OracleDbType.Char, '0', ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
@@ -155,6 +155,7 @@ namespace WSGClienteCM.Repository
                     //parameters.Add(new OracleParameter("P_SDATACONSENT", OracleDbType.Char, item.P_SDATACONSENT, ParameterDirection.Input));
                    //parameters.Add(new OracleParameter("P_SCLIENTGOB", OracleDbType.Char, item.P_SCLIENTGOB, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_SNROPROCESO", OracleDbType.Varchar2, item.P_SNOPROCESO, ParameterDirection.Input));
+                    parameters.Add(new OracleParameter("P_NNUMREG", OracleDbType.Int64, item.P_NNUMREG, ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_SSTATE", OracleDbType.Char, '0', ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
                     parameters.Add(P_MESSAGE);

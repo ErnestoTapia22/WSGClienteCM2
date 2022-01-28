@@ -8,6 +8,8 @@ namespace WSGClienteCM.Utils
         public string ConnectionStringORA { get; set; }
         public string ConnectionStringTimeP { get; set; }
         public string ConnectionStringConciliacion { get; set; }
+        public string ClientService { get; set; }
+
         //public static String[] CampoObligatorio { get { return Util.ObtainConfig("CAMPO_OBLIGATORIO"); } }
         //public static String[] TipoDatoNumerico { get { return Util.ObtainConfig("TIPO_DATO_NO_NUMERICO"); } }
         //public static String[] EstructuraSinDatos { get { return Util.ObtainConfig("ESTRUCTURA_SIN_DATOS"); } }
