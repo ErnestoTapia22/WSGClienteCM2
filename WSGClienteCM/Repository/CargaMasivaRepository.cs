@@ -366,76 +366,89 @@ namespace WSGClienteCM.Repository
 
              
 
-        public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
+       
+        public async Task<ResponseViewModel> SaveStateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
-            List<OracleParameter> parameter = new List<OracleParameter>();
 
-            EmailViewModel emailViewModel;
-            List<EmailViewModel> ListEmailViewModel = new List<EmailViewModel>();
-            TramaRespuestaCargaMasivaResponse response = new TramaRespuestaCargaMasivaResponse();
+            ResponseViewModel res = new ResponseViewModel();
 
             try
             {
-                //INPUT     
+                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                P_MESSAGE.Size = 4000;
+                OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
 
-                parameter.Add(new OracleParameter("P_SNOPROCESO", OracleDbType.Varchar2, P_SNOPROCESO, ParameterDirection.Input));
 
-                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
-                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
-                OracleParameter C_TABLE = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
 
-                P_NCODE.Size = 4000;
-                P_SMESSAGE.Size = 4000;
+                List<OracleParameter> parameters = new List<OracleParameter>();
+                parameters.Add(new OracleParameter("P_NNROPROCESO_DET", OracleDbType.Int64, item.NNROPROCESO_DET, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NIDDOC_TYPE", OracleDbType.Varchar2, item.NIDDOC_TYPE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SIDDOC", OracleDbType.Varchar2, item.SIDDOC, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SFIRSTNAME", OracleDbType.Varchar2, item.SFIRSTNAME, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SLASTNAME", OracleDbType.Varchar2, item.SLASTNAME, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SLASTNAME2", OracleDbType.Varchar2, item.SLASTNAME2, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SLEGALNAME", OracleDbType.Varchar2, item.SLEGALNAME, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SSEXCLIEN", OracleDbType.Varchar2, item.SSEXCLIEN, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NCIVILSTA", OracleDbType.Varchar2, item.NCIVILSTA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NNATIONALITY", OracleDbType.Varchar2, item.NNATIONALITY, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_DBIRTHDAT", OracleDbType.Varchar2, item.DBIRTHDAT, ParameterDirection.Input));
 
-                parameter.Add(P_NCODE);
-                parameter.Add(P_SMESSAGE);
-                parameter.Add(C_TABLE);
+                parameters.Add(new OracleParameter("P_ADDRESSTYPE", OracleDbType.Varchar2, item.ADDRESSTYPE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_STI_DIRE", OracleDbType.Varchar2, item.STI_DIRE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SNOM_DIRECCION", OracleDbType.Varchar2, item.SNOM_DIRECCION, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SNUM_DIRECCION", OracleDbType.Varchar2, item.SNUM_DIRECCION, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_STI_BLOCKCHALET", OracleDbType.Varchar2, item.STI_BLOCKCHALET, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SBLOCKCHALET", OracleDbType.Varchar2, item.SBLOCKCHALET, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_STI_INTERIOR", OracleDbType.Varchar2, item.STI_INTERIOR, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SNUM_INTERIOR", OracleDbType.Varchar2, item.SNUM_INTERIOR, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_STI_CJHT", OracleDbType.Varchar2, item.STI_CJHT, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SNOM_CJHT", OracleDbType.Varchar2, item.SNOM_CJHT, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SETAPA", OracleDbType.Varchar2, item.SETAPA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SMANZANA", OracleDbType.Varchar2, item.SMANZANA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SLOTE", OracleDbType.Varchar2, item.SLOTE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SREFERENCIA", OracleDbType.Varchar2, item.SREFERENCIA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NMUNICIPALITY", OracleDbType.Varchar2, item.NMUNICIPALITY, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NCOUNTRY", OracleDbType.Varchar2, item.NCOUNTRY, ParameterDirection.Input));
 
-                try
+                parameters.Add(new OracleParameter("P_NAREA_CODE", OracleDbType.Varchar2, item.NAREA_CODE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NPHONE_TYPE", OracleDbType.Varchar2, item.NPHONE_TYPE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SPHONE", OracleDbType.Varchar2, item.SPHONE, ParameterDirection.Input));
+
+                parameters.Add(new OracleParameter("P_SEMAILTYPE", OracleDbType.Varchar2, item.SEMAILTYPE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SE_MAIL", OracleDbType.Varchar2, item.SE_MAIL, ParameterDirection.Input));
+
+                parameters.Add(new OracleParameter("P_COD_CIIU", OracleDbType.Varchar2, item.COD_CIIU, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_COD_CUSPP", OracleDbType.Varchar2, item.COD_CUSPP, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SPROTEG_DATOS_IND", OracleDbType.Varchar2, item.SPROTEG_DATOS_IND, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SBAJAMAIL_IND", OracleDbType.Varchar2, item.SBAJAMAIL_IND, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SISCLIENT_GBD", OracleDbType.Varchar2, item.SISCLIENT_GBD, ParameterDirection.Input));
+
+                parameters.Add(P_MESSAGE);
+                parameters.Add(P_COD_ERR);
+
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_STATE_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
-                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
-                    {
-                        while (dr.Read())
-                        {
-                            emailViewModel = new EmailViewModel();
-                            emailViewModel.P_SE_MAIL = dr["P_SE_MAIL"].ToString();
 
-                            ListEmailViewModel.Add(emailViewModel);
-                        }
+                    res.P_COD_ERR = P_COD_ERR.Value.ToString();
+                    res.P_MESSAGE = P_MESSAGE.Value.ToString();
 
 
-                        response.correoUsuarios = ListEmailViewModel;
-                        dr.Close();
-                    }
-                    if (response.correoUsuarios.Count > 0)
-                    {
-                        response.respuesta = true;
-                        response.mensajes.Add("Se encontraron registros");
-                    }
-                    else
-                    {
-                        response.respuesta = false;
-                        response.mensajes.Add("No se encontraron registros");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return new TramaRespuestaCargaMasivaResponse { respuesta = false, mensajes = new List<string> { "Hubo un error en la consulta de correos de los usuarios", ex.Message }, correoUsuarios = new List<EmailViewModel>() };
                 }
 
-
-                response.codigoRespuesta = P_NCODE.Value.ToString();
-                response.mensajeRespuesta = P_SMESSAGE.Value.ToString();
 
             }
-            catch (Exception ex)
-            {
-                throw ex;
+            catch (Exception ex) {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+                
             }
-            return response;
+            return res;
+
+           
         }
 
+        //hcama@mg 26.01.2021 ini 
         public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
         {
             var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
@@ -567,87 +580,158 @@ namespace WSGClienteCM.Repository
             }
             catch (Exception ex)
             {
-                res.P_COD_ERR = "2";
-                res.P_MESSAGE = ex.Message;
-                throw ex;
-            }
-
-            return res;
-
-        }
-        public async Task<ResponseViewModel> SaveStateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx)
-        {
-
-            ResponseViewModel res = new ResponseViewModel();
-
-            try
-            {
-                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
-                P_MESSAGE.Size = 4000;
-                OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
-
-
-
-                List<OracleParameter> parameters = new List<OracleParameter>();
-                parameters.Add(new OracleParameter("P_NNROPROCESO_DET", OracleDbType.Int64, item.NNROPROCESO_DET, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NIDDOC_TYPE", OracleDbType.Varchar2, item.NIDDOC_TYPE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SIDDOC", OracleDbType.Varchar2, item.SIDDOC, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SFIRSTNAME", OracleDbType.Varchar2, item.SFIRSTNAME, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SLASTNAME", OracleDbType.Varchar2, item.SLASTNAME, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SLASTNAME2", OracleDbType.Varchar2, item.SLASTNAME2, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SLEGALNAME", OracleDbType.Varchar2, item.SLEGALNAME, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SSEXCLIEN", OracleDbType.Varchar2, item.SSEXCLIEN, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NCIVILSTA", OracleDbType.Varchar2, item.NCIVILSTA, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NNATIONALITY", OracleDbType.Varchar2, item.NNATIONALITY, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_DBIRTHDAT", OracleDbType.Varchar2, item.DBIRTHDAT, ParameterDirection.Input));
-
-                parameters.Add(new OracleParameter("P_ADDRESSTYPE", OracleDbType.Varchar2, item.ADDRESSTYPE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_STI_DIRE", OracleDbType.Varchar2, item.STI_DIRE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SNOM_DIRECCION", OracleDbType.Varchar2, item.SNOM_DIRECCION, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SNUM_DIRECCION", OracleDbType.Varchar2, item.SNUM_DIRECCION, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_STI_BLOCKCHALET", OracleDbType.Varchar2, item.STI_BLOCKCHALET, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SBLOCKCHALET", OracleDbType.Varchar2, item.SBLOCKCHALET, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_STI_INTERIOR", OracleDbType.Varchar2, item.STI_INTERIOR, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SNUM_INTERIOR", OracleDbType.Varchar2, item.SNUM_INTERIOR, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_STI_CJHT", OracleDbType.Varchar2, item.STI_CJHT, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SNOM_CJHT", OracleDbType.Varchar2, item.SNOM_CJHT, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SETAPA", OracleDbType.Varchar2, item.SETAPA, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SMANZANA", OracleDbType.Varchar2, item.SMANZANA, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SLOTE", OracleDbType.Varchar2, item.SLOTE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SREFERENCIA", OracleDbType.Varchar2, item.SREFERENCIA, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NMUNICIPALITY", OracleDbType.Varchar2, item.NMUNICIPALITY, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NCOUNTRY", OracleDbType.Varchar2, item.NCOUNTRY, ParameterDirection.Input));
-
-                parameters.Add(new OracleParameter("P_NAREA_CODE", OracleDbType.Varchar2, item.NAREA_CODE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_NPHONE_TYPE", OracleDbType.Varchar2, item.NPHONE_TYPE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SPHONE", OracleDbType.Varchar2, item.SPHONE, ParameterDirection.Input));
-
-                parameters.Add(new OracleParameter("P_SEMAILTYPE", OracleDbType.Varchar2, item.SEMAILTYPE, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SE_MAIL", OracleDbType.Varchar2, item.SE_MAIL, ParameterDirection.Input));
-
-                parameters.Add(new OracleParameter("P_COD_CIIU", OracleDbType.Varchar2, item.COD_CIIU, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_COD_CUSPP", OracleDbType.Varchar2, item.COD_CUSPP, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SPROTEG_DATOS_IND", OracleDbType.Varchar2, item.SPROTEG_DATOS_IND, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SBAJAMAIL_IND", OracleDbType.Varchar2, item.SBAJAMAIL_IND, ParameterDirection.Input));
-                parameters.Add(new OracleParameter("P_SISCLIENT_GBD", OracleDbType.Varchar2, item.SISCLIENT_GBD, ParameterDirection.Input));
-
-                parameters.Add(P_MESSAGE);
-                parameters.Add(P_COD_ERR);
-
-
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_STATE_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
-                {
-
-                    res.P_COD_ERR = P_COD_ERR.Value.ToString();
-                    res.P_MESSAGE = P_MESSAGE.Value.ToString();
-
-
-                }
-
                 throw ex;
             }
             return response;
         }
+
+
+        public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
+        {
+            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_ERRORES";
+            List<OracleParameter> parameter = new List<OracleParameter>();
+
+            ClientBindingModel clientBindingModel;
+            List<ClientBindingModel> ListClientBindingModel = new List<ClientBindingModel>();
+            TramaRespuestaCargaMasivaResponse response = new TramaRespuestaCargaMasivaResponse();
+
+            try
+            {
+                //INPUT     
+
+                parameter.Add(new OracleParameter("P_SNOPROCESO", OracleDbType.Varchar2, P_SNOPROCESO, ParameterDirection.Input));
+
+                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter C_TABLE = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
+
+                P_NCODE.Size = 4000;
+                P_SMESSAGE.Size = 4000;
+
+                parameter.Add(P_NCODE);
+                parameter.Add(P_SMESSAGE);
+                parameter.Add(C_TABLE);
+
+                try
+                {
+                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    {
+                        while (dr.Read())
+                        {
+                            clientBindingModel = new ClientBindingModel();
+                            clientBindingModel.P_SNOPROCESO = dr["P_SNOPROCESO"].ToString();
+                            clientBindingModel.P_NNUMREG = Int64.Parse(dr["P_NNUMREG"].ToString());
+                            clientBindingModel.P_SFILENAME = dr["P_SFILENAME"].ToString();
+                            clientBindingModel.P_SCOLUMNNAME = dr["P_SCOLUMNNAME"].ToString();
+                            clientBindingModel.P_SCOLUMNVALUE = dr["P_SCOLUMNVALUE"].ToString();
+                            clientBindingModel.P_SERRORVALUE = dr["P_SERRORVALUE"].ToString();
+                            clientBindingModel.P_NUSERNAME = dr["P_NUSERNAME"].ToString();
+
+                            ListClientBindingModel.Add(clientBindingModel);
+                        }
+
+
+                        response.tramaErrores = ListClientBindingModel;
+                        dr.Close();
+                    }
+                    if (response.tramaErrores.Count > 0)
+                    {
+                        response.respuesta = true;
+                        response.mensajes.Add("Se encontraron registros");
+                    }
+                    else
+                    {
+                        response.respuesta = false;
+                        response.mensajes.Add("No se encontraron registros");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new TramaRespuestaCargaMasivaResponse { respuesta = false, mensajes = new List<string> { "Hubo un error en la consulta de la trama de  errores", ex.Message }, tramaErrores = new List<ClientBindingModel>() };
+                }
+
+
+                response.codigoRespuesta = P_NCODE.Value.ToString();
+                response.mensajeRespuesta = P_SMESSAGE.Value.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return response;
+        }
+
+        public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
+        {
+            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
+            List<OracleParameter> parameter = new List<OracleParameter>();
+
+            EmailViewModel emailViewModel;
+            List<EmailViewModel> ListEmailViewModel = new List<EmailViewModel>();
+            TramaRespuestaCargaMasivaResponse response = new TramaRespuestaCargaMasivaResponse();
+
+            try
+            {
+                //INPUT     
+
+                parameter.Add(new OracleParameter("P_SNOPROCESO", OracleDbType.Varchar2, P_SNOPROCESO, ParameterDirection.Input));
+
+                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter C_TABLE = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
+
+                P_NCODE.Size = 4000;
+                P_SMESSAGE.Size = 4000;
+
+                parameter.Add(P_NCODE);
+                parameter.Add(P_SMESSAGE);
+                parameter.Add(C_TABLE);
+
+                try
+                {
+                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    {
+                        while (dr.Read())
+                        {
+                            emailViewModel = new EmailViewModel();
+                            emailViewModel.P_SE_MAIL = dr["P_SE_MAIL"].ToString();
+
+                            ListEmailViewModel.Add(emailViewModel);
+                        }
+
+
+                        response.correoUsuarios = ListEmailViewModel;
+                        dr.Close();
+                    }
+                    if (response.correoUsuarios.Count > 0)
+                    {
+                        response.respuesta = true;
+                        response.mensajes.Add("Se encontraron registros");
+                    }
+                    else
+                    {
+                        response.respuesta = false;
+                        response.mensajes.Add("No se encontraron registros");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return new TramaRespuestaCargaMasivaResponse { respuesta = false, mensajes = new List<string> { "Hubo un error en la consulta de correos de los usuarios", ex.Message }, correoUsuarios = new List<EmailViewModel>() };
+                }
+
+
+                response.codigoRespuesta = P_NCODE.Value.ToString();
+                response.mensajeRespuesta = P_SMESSAGE.Value.ToString();
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return response;
+        }
+        //hcama@mg 26.01.2021 fin 
 
 
         //hcama@mg 26.01.2021 fin 

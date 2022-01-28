@@ -256,18 +256,21 @@ namespace WSGClienteCM.Services
 
             return result;
 
-            public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
-            {
-                return _cargaMasivaRepository.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
-            }
-            public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
-            {
-                return _cargaMasivaRepository.ObtenerTramaEnvioErrores(P_SNOPROCESO);
-            }
-            public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
-            {
-                return _cargaMasivaRepository.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
-            }
 
         }
+
+
+        public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
+        {
+            return _cargaMasivaRepository.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
+        }
+        public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
+        {
+            return _cargaMasivaRepository.ObtenerTramaEnvioErrores(P_SNOPROCESO);
+        }
+        public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
+        {
+            return _cargaMasivaRepository.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
+        }
     }
+}
