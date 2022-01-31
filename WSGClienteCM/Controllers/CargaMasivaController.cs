@@ -121,80 +121,80 @@ namespace WSGClienteCM.Controllers
             }
         }
 
-        [HttpPost("Busqueda/ObtenerTramaEnvioExitosa")]
-        public IActionResult ObtenerTramaEnvioExitosa([FromBody] ClientBindingModel request)
-        {
-            //  string P_SNOPROCESO  ="17z6I5Eo20220120113003";
-            string P_SNOPROCESO = request.P_SNOPROCESO;
+        //[HttpPost("Busqueda/ObtenerTramaEnvioExitosa")]
+        //public IActionResult ObtenerTramaEnvioExitosa([FromBody] ClientBindingModel request)
+        //{
+        //    //  string P_SNOPROCESO  ="17z6I5Eo20220120113003";
+        //    string P_SNOPROCESO = request.P_SNOPROCESO;
 
-            ResponseViewModel _objReturn = null;
-            _objReturn = new ResponseViewModel();
+        //    ResponseViewModel _objReturn = null;
+        //    _objReturn = new ResponseViewModel();
 
-            TramaRespuestaCargaMasivaResponse tramaExistosa;
-            TramaRespuestaCargaMasivaResponse tramaError;
-            TramaRespuestaCargaMasivaResponse correoUsuarios;
+        //    TramaRespuestaCargaMasivaResponse tramaExistosa;
+        //    TramaRespuestaCargaMasivaResponse tramaError;
+        //    TramaRespuestaCargaMasivaResponse correoUsuarios;
 
-            List<Archivo> tramasList = new List<Archivo>();
+        //    List<Archivo> tramasList = new List<Archivo>();
 
-            tramaExistosa = this._cargaMasivaService.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
-            tramaError = this._cargaMasivaService.ObtenerTramaEnvioErrores(P_SNOPROCESO);
-            correoUsuarios = this._cargaMasivaService.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
-
-
-            if (!tramaExistosa.respuesta && (tramaExistosa.codigoRespuesta != "0"))
-            {
-                _objReturn.P_NCODE = "1";
-                _objReturn.P_SMESSAGE = tramaExistosa.mensajes[0];
-                return Ok(_objReturn);
-            }
-            if (!tramaError.respuesta && (tramaError.codigoRespuesta != "0"))
-            {
-                _objReturn.P_NCODE = "1";
-                _objReturn.P_SMESSAGE = tramaError.mensajes[0];
-                return Ok(_objReturn);
-            }
-            if (!correoUsuarios.respuesta && (correoUsuarios.codigoRespuesta != "0"))
-            {
-                _objReturn.P_NCODE = "1";
-                _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
-                return Ok(_objReturn);
-            }
-            if (!correoUsuarios.respuesta)
-            {
-                _objReturn.P_NCODE = "1";
-                _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
-                return Ok(_objReturn);
-            }
-
-            string contentRootPath = _HostEnvironment.ContentRootPath;
-            string path_CuerpoCorreo = Path.Combine(contentRootPath, @"Templates\CorreoTramaCargaMasiva01.html");
-            string htmlCorreo = System.IO.File.ReadAllText(path_CuerpoCorreo);
-            string addressFrom = "cotizacionesdigitales@protectasecurity.pe";
-            string pwdFrom = "0perac10nesSCTR$$_";
-
-            string addressTo;
-            string subject = "Detalle  Carga  Masiva - Cliente  360";
+        //    tramaExistosa = this._cargaMasivaService.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
+        //    tramaError = this._cargaMasivaService.ObtenerTramaEnvioErrores(P_SNOPROCESO);
+        //    correoUsuarios = this._cargaMasivaService.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
 
 
-            NotifyHelper objNotifyHelper = new NotifyHelper();
-            tramasList.Add(objNotifyHelper.ComposeExcelErrores(contentRootPath, tramaError.tramaErrores));
-            tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
+        //    if (!tramaExistosa.respuesta && (tramaExistosa.codigoRespuesta != "0"))
+        //    {
+        //        _objReturn.P_NCODE = "1";
+        //        _objReturn.P_SMESSAGE = tramaExistosa.mensajes[0];
+        //        return Ok(_objReturn);
+        //    }
+        //    if (!tramaError.respuesta && (tramaError.codigoRespuesta != "0"))
+        //    {
+        //        _objReturn.P_NCODE = "1";
+        //        _objReturn.P_SMESSAGE = tramaError.mensajes[0];
+        //        return Ok(_objReturn);
+        //    }
+        //    if (!correoUsuarios.respuesta && (correoUsuarios.codigoRespuesta != "0"))
+        //    {
+        //        _objReturn.P_NCODE = "1";
+        //        _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
+        //        return Ok(_objReturn);
+        //    }
+        //    if (!correoUsuarios.respuesta)
+        //    {
+        //        _objReturn.P_NCODE = "1";
+        //        _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
+        //        return Ok(_objReturn);
+        //    }
 
-            foreach (EmailViewModel email in correoUsuarios.correoUsuarios)
-            {
-                addressTo = email.P_SE_MAIL;
-                objNotifyHelper.SendMail(addressFrom, pwdFrom, addressTo, subject, htmlCorreo, tramasList);
-            }
+        //    string contentRootPath = _HostEnvironment.ContentRootPath;
+        //    string path_CuerpoCorreo = Path.Combine(contentRootPath, @"Templates\CorreoTramaCargaMasiva01.html");
+        //    string htmlCorreo = System.IO.File.ReadAllText(path_CuerpoCorreo);
+        //    string addressFrom = "cotizacionesdigitales@protectasecurity.pe";
+        //    string pwdFrom = "0perac10nesSCTR$$_";
 
-            if (_objReturn == null)
-            {
-                return NotFound();
-            }
+        //    string addressTo;
+        //    string subject = "Detalle  Carga  Masiva - Cliente  360";
 
-            _objReturn.P_NCODE = "0";
-            _objReturn.P_SMESSAGE = "Se notificaron las tramas  con �xito";
-            return Ok(_objReturn);
-        }
+
+        //    NotifyHelper objNotifyHelper = new NotifyHelper();
+        //    tramasList.Add(objNotifyHelper.ComposeExcelErrores(contentRootPath, tramaError.tramaErrores));
+        //    tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
+
+        //    foreach (EmailViewModel email in correoUsuarios.correoUsuarios)
+        //    {
+        //        addressTo = email.P_SE_MAIL;
+        //        objNotifyHelper.SendMail(addressFrom, pwdFrom, addressTo, subject, htmlCorreo, tramasList);
+        //    }
+
+        //    if (_objReturn == null)
+        //    {
+        //        return NotFound();
+        //    }
+
+        //    _objReturn.P_NCODE = "0";
+        //    _objReturn.P_SMESSAGE = "Se notificaron las tramas  con �xito";
+        //    return Ok(_objReturn);
+        //}
 
 
 

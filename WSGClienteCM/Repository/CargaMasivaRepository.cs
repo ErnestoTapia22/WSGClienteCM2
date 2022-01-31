@@ -193,7 +193,7 @@ namespace WSGClienteCM.Repository
             return res;
 
         }
-        public async Task<ResponseViewModel> GetStateCero()
+        public async Task<ResponseViewModel> GetByState(string state)
         {
             List<DetailBindingModel> detail = new List<DetailBindingModel>();
             ResponseViewModel res = new ResponseViewModel();
@@ -201,14 +201,16 @@ namespace WSGClienteCM.Repository
 
             try
             {
+              
                 OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
                 P_SMESSAGE.Size = 4000;
                 OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
                 OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, detail, ParameterDirection.Output);
+                parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
                 parameters.Add(P_SMESSAGE);
                 parameters.Add(P_NCODE);
                 parameters.Add(P_TABLA);
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "GET_STATE_CERO"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "GET_BY_STATE"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
 
                     detail = dr.ReadRowsList<DetailBindingModel>();
@@ -377,6 +379,7 @@ namespace WSGClienteCM.Repository
                 OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
                 P_MESSAGE.Size = 4000;
                 OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                OracleParameter P_COD_INSERTED = new OracleParameter("P_INSERTED_ID_AUX", OracleDbType.Decimal, ParameterDirection.Output);
 
 
 
@@ -422,18 +425,18 @@ namespace WSGClienteCM.Repository
                 parameters.Add(new OracleParameter("P_SPROTEG_DATOS_IND", OracleDbType.Varchar2, item.SPROTEG_DATOS_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SBAJAMAIL_IND", OracleDbType.Varchar2, item.SBAJAMAIL_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SISCLIENT_GBD", OracleDbType.Varchar2, item.SISCLIENT_GBD, ParameterDirection.Input));
+               
 
+                parameters.Add(P_COD_INSERTED);
                 parameters.Add(P_MESSAGE);
                 parameters.Add(P_COD_ERR);
 
 
                 using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_STATE_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
-
                     res.P_COD_ERR = P_COD_ERR.Value.ToString();
                     res.P_MESSAGE = P_MESSAGE.Value.ToString();
-
-
+                    res.P_NIDCM = P_COD_INSERTED.Value.ToString();
                 }
 
 
@@ -441,17 +444,55 @@ namespace WSGClienteCM.Repository
             catch (Exception ex) {
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;
-                
+                res.P_NIDCM = "0";
+
+
             }
             return res;
 
            
         }
+        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value, DbConnection cn, DbTransaction trx)
+        {
+            ResponseViewModel res = new ResponseViewModel();
+            try
+            {
+               
+               
+                    OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                    P_MESSAGE.Size = 4000;
+                    OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                    List<OracleParameter> parameters = new List<OracleParameter>();
+
+                    parameters.Add(new OracleParameter("P_ID", OracleDbType.Int32, nid, ParameterDirection.Input));
+                    parameters.Add(new OracleParameter("P_VALUE", OracleDbType.Varchar2, value, ParameterDirection.Input));
+
+                    parameters.Add(P_MESSAGE);
+                    parameters.Add(P_COD_ERR);
+
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "UPD_STATE_RESPONSE"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    {
+                            res.P_COD_ERR = P_COD_ERR.Value.ToString();
+                            res.P_MESSAGE = P_MESSAGE.Value.ToString();
+                    }
+
+                
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+
+            }
+            return res;
+
+
+        }
 
         //hcama@mg 26.01.2021 ini 
-        public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
+        public async Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
+           // var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             ClientBindingModel clientBindingModel;
@@ -485,7 +526,7 @@ namespace WSGClienteCM.Repository
 
                 try
                 {
-                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "SP_OBTENER_TRAMA_ENVIO_EXITOSA"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         while (dr.Read())
                         {
@@ -586,9 +627,9 @@ namespace WSGClienteCM.Repository
         }
 
 
-        public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
+        public async Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioErrores(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_ERRORES";
+            //var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_ERRORES";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             ClientBindingModel clientBindingModel;
@@ -614,7 +655,7 @@ namespace WSGClienteCM.Repository
 
                 try
                 {
-                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "SP_OBTENER_TRAMA_ENVIO_ERRORES"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         while (dr.Read())
                         {
@@ -662,9 +703,9 @@ namespace WSGClienteCM.Repository
             return response;
         }
 
-        public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
+        public async Task<TramaRespuestaCargaMasivaResponse> ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
+            //var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             EmailViewModel emailViewModel;
@@ -690,7 +731,7 @@ namespace WSGClienteCM.Repository
 
                 try
                 {
-                    using (OracleDataReader dr = (OracleDataReader)_connectionBase.ExecuteByStoredProcedure(sPackageName, parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         while (dr.Read())
                         {

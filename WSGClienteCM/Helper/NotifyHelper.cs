@@ -133,7 +133,7 @@ namespace WSGClienteCM.Helper
             return objArchivo;
         }
 
-        public void SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, List<Archivo> tramasList = null)
+        public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, List<Archivo> tramasList = null)
         { 
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");    
 
@@ -157,7 +157,7 @@ namespace WSGClienteCM.Helper
                 SmtpServer.UseDefaultCredentials = false;
                 SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
                 SmtpServer.EnableSsl = true;
-                SmtpServer.Send(mail);
+                await SmtpServer.SendMailAsync(mail);
             }         
         }
 

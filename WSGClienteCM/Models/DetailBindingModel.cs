@@ -8,9 +8,11 @@ namespace WSGClienteCM.Models
         public string SCODAPLICACION { get; set; }
         public Int64 NUSERCODE { get; set; }
         public string SNROPROCESO_CAB { get; set; }
+        public string SFILENAME { get; set; }
 
         public Decimal? NNROPROCESO_DET { get; set; }
         public string SIDDOC { get; set; }
+
         public string NIDDOC_TYPE { get; set; }
         //Client
         public string SFIRSTNAME  { get; set; }
@@ -78,6 +80,7 @@ namespace WSGClienteCM.Models
         public string SPROTEG_DATOS_IND { get; set; }
         public string SBAJAMAIL_IND { get; set; }
         public string SISCLIENT_GBD { get; set; }
+        public decimal NNUMREG { get; set; }
 
 
     }
