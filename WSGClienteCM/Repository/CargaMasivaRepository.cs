@@ -452,7 +452,7 @@ namespace WSGClienteCM.Repository
 
            
         }
-        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value, DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value,int state, DbConnection cn, DbTransaction trx)
         {
             ResponseViewModel res = new ResponseViewModel();
             try
@@ -466,6 +466,7 @@ namespace WSGClienteCM.Repository
 
                     parameters.Add(new OracleParameter("P_ID", OracleDbType.Int32, nid, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_VALUE", OracleDbType.Varchar2, value, ParameterDirection.Input));
+                    parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
 
                     parameters.Add(P_MESSAGE);
                     parameters.Add(P_COD_ERR);

@@ -15,7 +15,7 @@ namespace WSGClienteCM.Repository
         Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value, DbConnection cn, DbTransaction trx);
         Task<ResponseViewModel> ValidateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx);
         Task<ResponseViewModel> SaveStateRow(DetailBindingModel detailStateParsed, DbConnection dataConnection, DbTransaction trx);
-        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, DbConnection cn, DbTransaction trx);
+        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state, DbConnection cn, DbTransaction trx);
         //hcama@mg 26.01.2021 ini 
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioExitosa(string P_SNOPROCESO);
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioErrores(string P_SNOPROCESO);
