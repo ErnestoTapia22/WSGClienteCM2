@@ -71,5 +71,6 @@
         public string P_SKEYADDRESS { get; set; }
         public string P_NUM_UPDATE { get; set; }
         public string p_NUM_INSERT { get; set; }
+        public string P_SRECTYPE { get; set; }
     }
 }

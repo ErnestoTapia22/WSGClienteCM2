@@ -14,6 +14,8 @@ using WSGClienteCM.Connection;
 using WSGClienteCM.Repository;
 using WSGClienteCM.Services;
 using WSGClienteCM.Utils;
+using AutoMapper;
+using WSGClienteCM.Profiles;
 
 namespace WSGClienteCM
 {
@@ -38,6 +40,12 @@ namespace WSGClienteCM
                     .AllowAnyOrigin()
                     .AllowAnyHeader());
             });
+            var mappingConfig = new MapperConfiguration(mc => {
+                mc.AddProfile(new ClientProfile());
+            });
+            IMapper mapper = mappingConfig.CreateMapper();
+            services.AddSingleton(mapper);
+            services.AddOptions();
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
             services.AddScoped<IConnectionBase, ConnectionBase>();

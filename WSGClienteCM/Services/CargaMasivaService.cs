@@ -16,6 +16,7 @@ using WSGClienteCM.Utils;
 using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using WSGClienteCM.Helper;
+using AutoMapper;
 
 namespace WSGClienteCM.Services
 {
@@ -25,12 +26,14 @@ namespace WSGClienteCM.Services
         private readonly IConnectionBase _connectionBase;
         private readonly AppSettings _appSettings;
         private readonly IHostingEnvironment _HostEnvironment;
-        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase, IOptions<AppSettings> appSettings, IHostingEnvironment HostEnvironment)
+        private readonly IMapper _mapper;
+        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase, IOptions<AppSettings> appSettings, IHostingEnvironment HostEnvironment, IMapper mapper)
         {
             this._cargaMasivaRepository = cargaMasivaRepository;
             this._connectionBase = connectionBase;
             this._appSettings = appSettings.Value;
             this._HostEnvironment = HostEnvironment;
+            this._mapper = mapper;
         }
 
         public async Task<ResponseViewModel> InitProcess()
@@ -109,7 +112,8 @@ namespace WSGClienteCM.Services
                                         if (resClientService.P_NCODE == "0")
                                         {
                                             ClientBindingModel resToSend = new ClientBindingModel();
-                                            resToSend = CompleteFields(resClientService.EListClient[0], row);
+                                            ClientViewModel resToSend2 = new ClientViewModel();
+                                            resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
                                             
                                             string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
                                             ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
@@ -392,129 +396,228 @@ namespace WSGClienteCM.Services
         }
         public ClientBindingModel CompleteFields(ClientViewModel resMaster,DetailBindingModel resToComplete) {
 
-            ClientBindingModel clientBindingModel = new ClientBindingModel();
-            clientBindingModel.P_SNOPROCESO = resToComplete.SNROPROCESO_CAB.Trim();
+            ClientBindingModel clientBindingModel = new ClientBindingModel(); 
+            clientBindingModel.P_SNOPROCESO = resToComplete.SNROPROCESO_CAB?.Trim();
             clientBindingModel.P_NNUMREG = Convert.ToInt64(resToComplete.NNUMREG);
-            clientBindingModel.P_SFILENAME = resToComplete.SFILENAME.Trim();
+            clientBindingModel.P_SFILENAME = resToComplete.SFILENAME?.Trim();
+            clientBindingModel.P_TipOper = "INS";
+            clientBindingModel.P_CodAplicacion= resToComplete.SCODAPLICACION?.Trim();
+            clientBindingModel.P_NIDDOC_TYPE = resToComplete.NIDDOC_TYPE?.Trim();
+            clientBindingModel.P_SIDDOC = resToComplete.SIDDOC?.Trim();
+            
 
-            if (clientBindingModel.P_SFIRSTNAME != null) {
-                if (resToComplete.SFIRSTNAME.Trim() != clientBindingModel.P_SFIRSTNAME.Trim())
-                {
-                    clientBindingModel.P_SFIRSTNAME = resToComplete.SFIRSTNAME.Trim();
-                }
-            }
-
-            if (clientBindingModel.P_SLASTNAME != null)
+            if (resToComplete.SFIRSTNAME != null)
             {
-                if (resToComplete.SLASTNAME.Trim() != clientBindingModel.P_SLASTNAME.Trim())
+                if (resToComplete.SFIRSTNAME?.Trim() != resMaster.P_SFIRSTNAME?.Trim())
                 {
-                    clientBindingModel.P_SLASTNAME = resToComplete.SLASTNAME.Trim();
+                    clientBindingModel.P_SFIRSTNAME = resToComplete.SFIRSTNAME?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SFIRSTNAME = resMaster.P_SFIRSTNAME?.Trim();
                 }
             }
+            else {
+                clientBindingModel.P_SFIRSTNAME = resMaster.P_SFIRSTNAME?.Trim();
+            }
 
-            if (clientBindingModel.P_SLASTNAME2 != null)
+
+
+            if (resToComplete.SLASTNAME != null)
             {
-                if (resToComplete.SLASTNAME2.Trim() != clientBindingModel.P_SLASTNAME2.Trim())
+                if (resToComplete.SLASTNAME?.Trim() != resMaster.P_SLASTNAME?.Trim())
                 {
-                    clientBindingModel.P_SLASTNAME2 = resToComplete.SLASTNAME2.Trim();
+                    clientBindingModel.P_SLASTNAME = resToComplete.SLASTNAME?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SLASTNAME = resMaster.P_SLASTNAME?.Trim();
                 }
             }
+            else {
+                clientBindingModel.P_SLASTNAME = resMaster.P_SLASTNAME?.Trim();
+            }
 
-            if (clientBindingModel.P_SLEGALNAME != null)
+            if (resToComplete.SLASTNAME2 != null)
             {
-                if (resToComplete.SLEGALNAME.Trim() != clientBindingModel.P_SLEGALNAME.Trim())
+                if (resToComplete.SLASTNAME2?.Trim() != resMaster.P_SLASTNAME2?.Trim())
                 {
-                    clientBindingModel.P_SLEGALNAME = resToComplete.SLEGALNAME.Trim();
+                    clientBindingModel.P_SLASTNAME2 = resToComplete.SLASTNAME2?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SLASTNAME2 = resMaster.P_SLASTNAME2?.Trim();
                 }
             }
+            else {
 
-            if (clientBindingModel.P_SSEXCLIEN != null)
+                clientBindingModel.P_SLASTNAME2 = resMaster.P_SLASTNAME2?.Trim();
+            }
+
+            if (resToComplete.SLEGALNAME != null)
             {
-                if (resToComplete.SSEXCLIEN.Trim() != clientBindingModel.P_SSEXCLIEN.Trim())
+                if (resToComplete.SLEGALNAME?.Trim() != resMaster.P_SLEGALNAME?.Trim())
                 {
-                    clientBindingModel.P_SSEXCLIEN = resToComplete.SSEXCLIEN.Trim();
+                    clientBindingModel.P_SLEGALNAME = resToComplete.SLEGALNAME?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SLEGALNAME = resMaster.P_SLEGALNAME?.Trim();
                 }
             }
-
-            if (clientBindingModel.P_NCIVILSTA != null)
+            else
             {
-                if (resToComplete.NCIVILSTA.Trim() != clientBindingModel.P_NCIVILSTA.Trim())
-                {
-                    clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA.Trim();
-                }
+                clientBindingModel.P_SLEGALNAME = resMaster.P_SLEGALNAME?.Trim();
+
             }
 
-            if (clientBindingModel.P_NNATIONALITY != null)
+            if (resToComplete.SSEXCLIEN != null)
             {
-                if (resToComplete.NNATIONALITY.Trim() != clientBindingModel.P_NNATIONALITY.Trim())
+                if (resToComplete.SSEXCLIEN?.Trim() != resMaster.P_SSEXCLIEN?.Trim())
                 {
-                    clientBindingModel.P_NNATIONALITY = resToComplete.NNATIONALITY.Trim();
+                    clientBindingModel.P_SSEXCLIEN = resToComplete.SSEXCLIEN?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SSEXCLIEN = resMaster.P_SSEXCLIEN?.Trim();
                 }
             }
-
-            if (clientBindingModel.P_DBIRTHDAT != null)
+            else
             {
-                if (resToComplete.DBIRTHDAT.Trim() != clientBindingModel.P_DBIRTHDAT.Trim())
-                {
-                    clientBindingModel.P_DBIRTHDAT = resToComplete.DBIRTHDAT.Trim();
-                }
+                clientBindingModel.P_SSEXCLIEN = resMaster.P_SSEXCLIEN?.Trim();
+
+
             }
 
-            if (clientBindingModel.P_COD_CIIU != null)
+            if (resToComplete.NCIVILSTA != null)
             {
-                if (resToComplete.COD_CIIU.Trim() != clientBindingModel.P_COD_CIIU.Trim())
+                if (resToComplete.NCIVILSTA?.Trim() != resMaster.P_NCIVILSTA?.Trim())
                 {
-                    clientBindingModel.P_COD_CIIU = resToComplete.COD_CIIU.Trim();
+                    clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA?.Trim();
                 }
+                else {
+                    clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
+                }
+
+            }
+            else {
+                clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
             }
 
-            if (clientBindingModel.P_COD_CUSPP != null)
+            if (resToComplete.NNATIONALITY != null)
             {
-                if (resToComplete.COD_CUSPP.Trim() != clientBindingModel.P_COD_CUSPP.Trim())
+                if (resToComplete.NNATIONALITY?.Trim() != resMaster.P_NNATIONALITY?.Trim())
                 {
-                    clientBindingModel.P_COD_CUSPP = resToComplete.COD_CUSPP.Trim();
+                    clientBindingModel.P_NNATIONALITY = resToComplete.NNATIONALITY?.Trim();
                 }
-
+                else {
+                    clientBindingModel.P_NNATIONALITY = resMaster.P_NNATIONALITY?.Trim();
+                }
+            }
+            else {
+                clientBindingModel.P_NNATIONALITY = resMaster.P_NNATIONALITY?.Trim();
             }
 
-            if (clientBindingModel.P_SISCLIENT_IND != null)
+            if (resToComplete.DBIRTHDAT != null)
             {
-                if (resToComplete.SPROTEG_DATOS_IND.Trim() != clientBindingModel.P_SISCLIENT_IND.Trim())
+                if (resToComplete.DBIRTHDAT?.Trim() != resMaster.P_DBIRTHDAT?.Trim())
                 {
-                    clientBindingModel.P_SISCLIENT_IND = resToComplete.SPROTEG_DATOS_IND.Trim();
+                    clientBindingModel.P_DBIRTHDAT = resToComplete.DBIRTHDAT?.Trim();
+                }
+                else {
+                    clientBindingModel.P_DBIRTHDAT = resMaster.P_DBIRTHDAT?.Trim();
                 }
             }
+            else {
+                clientBindingModel.P_DBIRTHDAT = resMaster.P_DBIRTHDAT?.Trim();
+            }
 
-            if (clientBindingModel.P_SISCLIENT_IND != null)
+
+
+            if (resToComplete.COD_CUSPP != null)
             {
-                if (resToComplete.SPROTEG_DATOS_IND.Trim() != clientBindingModel.P_SISCLIENT_IND.Trim())
+                if (resToComplete.COD_CUSPP?.Trim() != resMaster.P_COD_CUSPP?.Trim())
                 {
-                    clientBindingModel.P_SISCLIENT_IND = resToComplete.SPROTEG_DATOS_IND.Trim();
+                    clientBindingModel.P_COD_CUSPP = resToComplete.COD_CUSPP?.Trim();
                 }
+                else {
+                    clientBindingModel.P_COD_CUSPP = resMaster.P_COD_CUSPP?.Trim();
+                }
+
+            }
+            else {
+                clientBindingModel.P_COD_CUSPP = resMaster.P_COD_CUSPP?.Trim();
             }
 
-            if (clientBindingModel.P_SBAJAMAIL_IND != null)
+            if (resToComplete.SPROTEG_DATOS_IND != null)
             {
-                if (resToComplete.SBAJAMAIL_IND.Trim() != clientBindingModel.P_SBAJAMAIL_IND.Trim())
+                if (resToComplete.SPROTEG_DATOS_IND?.Trim() != resMaster.P_SISCLIENT_IND?.Trim())
                 {
-                    clientBindingModel.P_SBAJAMAIL_IND = resToComplete.SBAJAMAIL_IND.Trim();
+                    clientBindingModel.P_SISCLIENT_IND = resToComplete.SPROTEG_DATOS_IND?.Trim();
+                }
+                else 
+                {
+                    clientBindingModel.P_SISCLIENT_IND = resMaster.P_SISCLIENT_IND?.Trim();
                 }
             }
+            else
+            {
+                clientBindingModel.P_SISCLIENT_IND = resMaster.P_SISCLIENT_IND?.Trim();
+            }
 
-            if (clientBindingModel.P_SISCLIENT_GBD != null)
+
+
+            if (resToComplete.SBAJAMAIL_IND != null)
+            {
+                if (resToComplete.SBAJAMAIL_IND?.Trim() != resMaster.P_SBAJAMAIL_IND?.Trim())
+                {
+                    clientBindingModel.P_SBAJAMAIL_IND = resToComplete.SBAJAMAIL_IND?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SBAJAMAIL_IND = resMaster.P_SBAJAMAIL_IND?.Trim();
+                }
+
+
+
+            }
+            else {
+                clientBindingModel.P_SBAJAMAIL_IND= resMaster.P_SBAJAMAIL_IND?.Trim();
+            }
+
+            if (resToComplete.SISCLIENT_GBD != null)
             {
 
-                if (resToComplete.SISCLIENT_GBD.Trim() != clientBindingModel.P_SISCLIENT_GBD.Trim())
+                if (resToComplete.SISCLIENT_GBD?.Trim() != resMaster.P_SISCLIENT_GBD?.Trim())
                 {
-                    clientBindingModel.P_SISCLIENT_GBD = resToComplete.SISCLIENT_GBD.Trim();
+                    clientBindingModel.P_SISCLIENT_GBD = resToComplete.SISCLIENT_GBD?.Trim();
+                }
+                else {
+                    clientBindingModel.P_SISCLIENT_GBD = resMaster.P_SISCLIENT_GBD?.Trim();
                 }
             }
-           
+            else {
+                clientBindingModel.P_SISCLIENT_GBD = resMaster.P_SISCLIENT_GBD?.Trim();
+            }
+            CiiuBindingModel ciiu = new CiiuBindingModel();
+            clientBindingModel.EListCIIUClient = new List<CiiuBindingModel>();
+            //if (resMaster.EListCIIUClient.Count() > 0) {
+            //    clientBindingModel.EListCIIUClient = _mapper.Map<List<CiiuViewModel>,List<CiiuBindingModel>>(resMaster.EListCIIUClient);
+            //}
+            if (resToComplete.COD_CIIU != null)
+            {
+               
+                ciiu.P_SCIIU = resToComplete.COD_CIIU;
+                
+                clientBindingModel.EListCIIUClient.Add(ciiu);
+            }
+            
 
             clientBindingModel.EListAddresClient = new List<AddressBindingModel>();
 
             AddressBindingModel adr = new AddressBindingModel();
+
+            //if (resMaster.EListAddresClient.Count > 0) {
+
+            //    clientBindingModel.EListAddresClient = _mapper.Map<List<AddressViewModel>,List<AddressBindingModel>>(resMaster.EListAddresClient);
+            //}
+            
             adr.P_ADDRESSTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
+            adr.P_SRECTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
             adr.P_STI_DIRE = resToComplete.STI_DIRE == null ? null : resToComplete.STI_DIRE.Trim();
             adr.P_SNOM_DIRECCION = resToComplete.SNOM_DIRECCION == null ? null: resToComplete.SNOM_DIRECCION.Trim();
             adr.P_SNUM_DIRECCION = resToComplete.SNUM_DIRECCION == null ? null : resToComplete.SNUM_DIRECCION.Trim();
@@ -529,12 +632,17 @@ namespace WSGClienteCM.Services
             adr.P_SLOTE = resToComplete.SLOTE  == null ? null : resToComplete.SLOTE.Trim();
             adr.P_SREFERENCE = resToComplete.SREFERENCIA == null ? null :  resToComplete.SREFERENCIA.Trim();
             adr.P_NMUNICIPALITY = resToComplete.NMUNICIPALITY == null ? null: resToComplete.NMUNICIPALITY.Trim();
+            adr.P_NCOUNTRY = resToComplete.NCOUNTRY == null ? "1" : resToComplete.NCOUNTRY.Trim();
 
             clientBindingModel.EListAddresClient.Add(adr);
 
             clientBindingModel.EListPhoneClient = new List<PhoneBindingModel>();
 
             PhoneBindingModel phone = new PhoneBindingModel();
+
+            //if (resMaster.EListPhoneClient.Count > 0) {
+            //    clientBindingModel.EListPhoneClient = _mapper.Map<List<PhoneViewModel>,List<PhoneBindingModel>>(resMaster.EListPhoneClient);
+            //}
             phone.P_NAREA_CODE = resToComplete.NAREA_CODE == null ? null : resToComplete.NAREA_CODE.Trim();
             phone.P_NPHONE_TYPE = resToComplete.NPHONE_TYPE == null ? null : resToComplete.NPHONE_TYPE.Trim();
             phone.P_SPHONE = resToComplete.SPHONE == null ? null :resToComplete.SPHONE.Trim();
@@ -544,14 +652,14 @@ namespace WSGClienteCM.Services
             clientBindingModel.EListEmailClient = new List<EmailBindingModel>();
 
             EmailBindingModel emailBindingModel = new EmailBindingModel();
+
+            //if (resMaster.EListEmailClient.Count > 0) {
+            //    clientBindingModel.EListEmailClient = _mapper.Map<List<EmailViewModel>,List<EmailBindingModel>>(resMaster.EListEmailClient);
+            //}
             emailBindingModel.P_SEMAILTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE.Trim();
             emailBindingModel.P_SE_MAIL = resToComplete.SE_MAIL == null ? null : resToComplete.SE_MAIL.Trim();
 
             clientBindingModel.EListEmailClient.Add(emailBindingModel);
-
-
-
-
 
             return clientBindingModel;
         }
