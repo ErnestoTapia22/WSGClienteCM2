@@ -81,6 +81,8 @@ namespace WSGClienteCM.Models
         public string SBAJAMAIL_IND { get; set; }
         public string SISCLIENT_GBD { get; set; }
         public decimal NNUMREG { get; set; }
+        public Int32 NLOCAL   { get; set; }
+        public Int32 NPROVINCE { get; set; }
 
 
     }

@@ -4,6 +4,7 @@
     {
         public string P_NRECOWNER { get; set; }
         public string P_SIDDOC { get; set; }
+        public string P_SRECTYPE { get; set; }
         public string P_NIDDOC_TYPE { get; set; }
         public string P_CodAplicacion { get; set; }
         public string P_NUSERCODE { get; set; }

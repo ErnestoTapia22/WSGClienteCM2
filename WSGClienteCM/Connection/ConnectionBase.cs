@@ -148,6 +148,41 @@ namespace WSGClienteCM.Connection
             return myReader;
         }
 
+        public async Task<DbDataReader> ExecuteByStoredProcedureVTAsync2(string nameStore,
+       IEnumerable<DbParameter> parameters = null,
+       enuTypeDataBase typeDataBase = enuTypeDataBase.OracleVTime,
+       enuTypeExecute typeExecute = enuTypeExecute.ExecuteReader)
+        {
+            OracleConnection DataConnection = ConnectionGet(typeDataBase);
+            OracleCommand cmdCommand = DataConnection.CreateCommand();
+            cmdCommand.CommandText = nameStore;
+            cmdCommand.CommandType = CommandType.StoredProcedure;
+            cmdCommand.InitialLONGFetchSize = 32767;
+
+            if (parameters != null)
+            {
+                foreach (DbParameter parameter in parameters)
+                {
+                    cmdCommand.Parameters.Add(parameter);
+                }
+            }
+            if (DataConnection.State == ConnectionState.Closed)
+                DataConnection.Open();
+            OracleDataReader myReader;
+            if (((cmdCommand.Parameters.Contains("C_TABLE") || IsOracleReader(cmdCommand))) && typeExecute == enuTypeExecute.ExecuteReader)
+            {
+                myReader = (OracleDataReader)await cmdCommand.ExecuteReaderAsync(); //CommandBehavior.CloseConnection 
+            }
+            else
+            {
+                await cmdCommand.ExecuteNonQueryAsync();
+                ParamsCollectionResult = cmdCommand.Parameters;
+                //cmdCommand.Connection.Close();
+                myReader = null;
+            }
+            return myReader;
+        }
+
         public async Task<DbDataReader> ExecuteByStoredProcedureVTAsync(string nameStore,
             IEnumerable<DbParameter> parameters = null,
             enuTypeDataBase typeDataBase = enuTypeDataBase.OracleVTime,
@@ -166,12 +201,12 @@ namespace WSGClienteCM.Connection
                     cmdCommand.Parameters.Add(parameter);
                 }
             }
-
-            DataConnection.Open();
+            if (DataConnection.State == ConnectionState.Closed)
+                DataConnection.Open();
             OracleDataReader myReader;
             if (((cmdCommand.Parameters.Contains("C_TABLE") || IsOracleReader(cmdCommand))) && typeExecute == enuTypeExecute.ExecuteReader)
             {
-                myReader = (OracleDataReader) await cmdCommand.ExecuteReaderAsync(CommandBehavior.CloseConnection);
+                myReader = (OracleDataReader) await cmdCommand.ExecuteReaderAsync(CommandBehavior.CloseConnection); //CommandBehavior.CloseConnection 
             }
             else
             {
@@ -213,6 +248,7 @@ namespace WSGClienteCM.Connection
 
             DbCommand cmdCommand = connection.CreateCommand();
             cmdCommand.Transaction = trx;
+           
             cmdCommand.Connection = connection;
             cmdCommand.CommandText = nameStore;
             cmdCommand.CommandType = CommandType.StoredProcedure;

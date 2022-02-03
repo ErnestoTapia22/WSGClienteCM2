@@ -35,6 +35,10 @@ namespace WSGClienteCM.Connection
           IEnumerable<DbParameter> parameters = null,
            ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
            ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteReader);
+        Task<DbDataReader> ExecuteByStoredProcedureVTAsync2(string nameStore,
+   IEnumerable<DbParameter> parameters = null,
+    ConnectionBase.enuTypeDataBase typeDataBase = ConnectionBase.enuTypeDataBase.OracleVTime,
+    ConnectionBase.enuTypeExecute typeExecute = ConnectionBase.enuTypeExecute.ExecuteReader);
 
         Task<DbDataReader> ExecuteByStoredProcedureVTAsync_TRX(string nameStore,
         IEnumerable<DbParameter> parameters = null, DbConnection connection = null,

@@ -229,7 +229,7 @@ namespace WSGClienteCM.Repository
             return res;
         }
 
-        public async Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value, DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value)
         {
             ResponseViewModel res = new ResponseViewModel();
             try
@@ -248,7 +248,7 @@ namespace WSGClienteCM.Repository
                     parameters.Add(P_MESSAGE);
                     parameters.Add(P_COD_ERR);
 
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "UPD_STATE_CM_CAB"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync2(string.Format("{0}.{1}", Package3, "UPD_STATE_CM_CAB"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         if (P_COD_ERR.Value.ToString() == "1")
                         {
@@ -359,7 +359,9 @@ namespace WSGClienteCM.Repository
 
             }catch (Exception ex)
             {
-
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+               
 
             }
             return res;
