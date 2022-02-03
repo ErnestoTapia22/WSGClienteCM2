@@ -14,6 +14,7 @@ namespace WSGClienteCM.Profiles
                 .ForMember(dest=>dest.P_ADDRESSTYPE,opts => opts.MapFrom(src=>src.P_STI_DIRE));
             CreateMap<PhoneViewModel, PhoneBindingModel>();
             CreateMap<EmailViewModel, EmailBindingModel>();
+           
         }
     }
 }

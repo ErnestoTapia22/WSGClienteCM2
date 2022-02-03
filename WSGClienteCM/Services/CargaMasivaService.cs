@@ -396,7 +396,8 @@ namespace WSGClienteCM.Services
         }
         public ClientBindingModel CompleteFields(ClientViewModel resMaster,DetailBindingModel resToComplete) {
 
-            ClientBindingModel clientBindingModel = new ClientBindingModel(); 
+            ClientBindingModel clientBindingModel = new ClientBindingModel();
+            clientBindingModel = _mapper.Map<ClientViewModel, ClientBindingModel>(resMaster);
             clientBindingModel.P_SNOPROCESO = resToComplete.SNROPROCESO_CAB?.Trim();
             clientBindingModel.P_NNUMREG = Convert.ToInt64(resToComplete.NNUMREG);
             clientBindingModel.P_SFILENAME = resToComplete.SFILENAME?.Trim();
@@ -404,6 +405,7 @@ namespace WSGClienteCM.Services
             clientBindingModel.P_CodAplicacion= resToComplete.SCODAPLICACION?.Trim();
             clientBindingModel.P_NIDDOC_TYPE = resToComplete.NIDDOC_TYPE?.Trim();
             clientBindingModel.P_SIDDOC = resToComplete.SIDDOC?.Trim();
+            clientBindingModel.P_NUSERCODE = resToComplete.NUSERCODE.ToString();
             
 
             if (resToComplete.SFIRSTNAME != null)
@@ -467,7 +469,7 @@ namespace WSGClienteCM.Services
 
             }
 
-            if (resToComplete.SSEXCLIEN != null)
+            if (resToComplete.SSEXCLIEN != null && resToComplete.SSEXCLIEN?.Trim() != "0")
             {
                 if (resToComplete.SSEXCLIEN?.Trim() != resMaster.P_SSEXCLIEN?.Trim())
                 {
@@ -484,11 +486,15 @@ namespace WSGClienteCM.Services
 
             }
 
-            if (resToComplete.NCIVILSTA != null)
+            if (resToComplete.NCIVILSTA != null && resToComplete.NCIVILSTA?.Trim() != "0")
             {
                 if (resToComplete.NCIVILSTA?.Trim() != resMaster.P_NCIVILSTA?.Trim())
                 {
-                    clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA?.Trim();
+                   
+                    
+                        clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA?.Trim();
+                    
+                    
                 }
                 else {
                     clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
@@ -499,7 +505,7 @@ namespace WSGClienteCM.Services
                 clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
             }
 
-            if (resToComplete.NNATIONALITY != null)
+            if (resToComplete.NNATIONALITY != null && resToComplete.NNATIONALITY?.Trim() != "0")
             {
                 if (resToComplete.NNATIONALITY?.Trim() != resMaster.P_NNATIONALITY?.Trim())
                 {
@@ -544,7 +550,7 @@ namespace WSGClienteCM.Services
                 clientBindingModel.P_COD_CUSPP = resMaster.P_COD_CUSPP?.Trim();
             }
 
-            if (resToComplete.SPROTEG_DATOS_IND != null)
+            if (resToComplete.SPROTEG_DATOS_IND != null && resToComplete.SPROTEG_DATOS_IND?.Trim() != "0")
             {
                 if (resToComplete.SPROTEG_DATOS_IND?.Trim() != resMaster.P_SISCLIENT_IND?.Trim())
                 {
@@ -562,7 +568,7 @@ namespace WSGClienteCM.Services
 
 
 
-            if (resToComplete.SBAJAMAIL_IND != null)
+            if (resToComplete.SBAJAMAIL_IND != null && resToComplete.SBAJAMAIL_IND?.Trim() != "0")
             {
                 if (resToComplete.SBAJAMAIL_IND?.Trim() != resMaster.P_SBAJAMAIL_IND?.Trim())
                 {
@@ -579,7 +585,7 @@ namespace WSGClienteCM.Services
                 clientBindingModel.P_SBAJAMAIL_IND= resMaster.P_SBAJAMAIL_IND?.Trim();
             }
 
-            if (resToComplete.SISCLIENT_GBD != null)
+            if (resToComplete.SISCLIENT_GBD != null && resToComplete.SISCLIENT_GBD?.Trim() != "0")
             {
 
                 if (resToComplete.SISCLIENT_GBD?.Trim() != resMaster.P_SISCLIENT_GBD?.Trim())
@@ -600,8 +606,11 @@ namespace WSGClienteCM.Services
             //}
             if (resToComplete.COD_CIIU != null)
             {
-               
+                ciiu.P_NROW = "1";
+                ciiu.P_TipOper = null;
+                ciiu.P_DEFFECDATE = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
                 ciiu.P_SCIIU = resToComplete.COD_CIIU;
+                
                 
                 clientBindingModel.EListCIIUClient.Add(ciiu);
             }
@@ -659,7 +668,7 @@ namespace WSGClienteCM.Services
             emailBindingModel.P_SEMAILTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE.Trim();
             emailBindingModel.P_SE_MAIL = resToComplete.SE_MAIL == null ? null : resToComplete.SE_MAIL.Trim();
 
-            clientBindingModel.EListEmailClient.Add(emailBindingModel);
+            //clientBindingModel.EListEmailClient.Add(emailBindingModel);
 
             return clientBindingModel;
         }
