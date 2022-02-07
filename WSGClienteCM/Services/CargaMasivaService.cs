@@ -55,30 +55,31 @@ namespace WSGClienteCM.Services
                     DataConnection.Open();
                     trx = DataConnection.BeginTransaction();
                     ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "1");
-                    
+
                     if (res.P_COD_ERR == "0")
                     {
-                       
+
                         foreach (DetailBindingModel row in responseViewModel.ElistDetail)
                         {
                             DetailBindingModel detailState = new DetailBindingModel();
                             ResponseViewModel resval = new ResponseViewModel();
                             // primera validacion tipo y numero de documento
-                            if (row.SIDDOC == "" || row.SIDDOC == null )// validar bien paso tipo doc =0
+                            if (row.SIDDOC == "" || row.SIDDOC == null)// validar bien paso tipo doc =0
                             {
                                 DetailBindingModel detailStateParsed1 = new DetailBindingModel();
                                 detailStateParsed1.SIDDOC = "El número de documento es obligatorio";
                                 detailStateParsed1.NNROPROCESO_DET = row.NNROPROCESO_DET;
                                 await _cargaMasivaRepository.SaveStateRow(detailStateParsed1, DataConnection, trx);
-
+                                int a = 4;
+                               int b = 10 / (4-a);
                             }
                             else
                             {
                                 int idInserted = 0;
-                                
+
                                 // validacion
                                 resval = await _cargaMasivaRepository.ValidateRow(row, DataConnection, trx);
-                              
+
                                 if (resval.EListErrores.Count > 0)
                                 {
                                     DetailBindingModel detailStateParsed = new DetailBindingModel();
@@ -94,6 +95,7 @@ namespace WSGClienteCM.Services
                                         error.SGRUPO = "GES_CAR_MAS_CLI_DET_STATE";
                                         responseViewModel.EListErrores.Add(error);
                                     }
+                                    ResponseViewModel resError3 = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "2");
                                 }
                                 else
                                 {
@@ -107,39 +109,49 @@ namespace WSGClienteCM.Services
                                         P_CodAplicacion = "GESTORCLIENTE",//row.SCODAPLICACION.Trim(),
                                         P_TipOper = "CON"
                                     };
-                                    string result = await PostRequest(_appSettings.ClientService, postRequest);
-                                    ResponseViewModel resClientService = new ResponseViewModel();
-                                    resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
-                                    if (resClientService != null)
-                                    {
-                                        if (resClientService.P_NCODE == "0")
+                                    try {
+
+                                        string result = await PostRequest(_appSettings.ClientService, postRequest);
+                                        ResponseViewModel resClientService = new ResponseViewModel();
+                                        resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
+                                        if (resClientService != null)
                                         {
-                                            ClientBindingModel resToSend = new ClientBindingModel();
-                                            ClientViewModel resToSend2 = new ClientViewModel();
-                                            resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
-
-                                            string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
-                                            ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
-                                            ResponseViewModel resUpdateDB = new ResponseViewModel();
-                                            if (resUpdate.P_NCODE == "0")
+                                            if (resClientService.P_NCODE == "0")
                                             {
-                                                ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "2");
-                                                resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 1, DataConnection, trx);
-                                            }
-                                            else
-                                            {
-                                                resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 0, DataConnection, trx);
-                                            }
+                                                ClientBindingModel resToSend = new ClientBindingModel();
+                                                ClientViewModel resToSend2 = new ClientViewModel();
+                                                resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
+
+                                                string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
+                                                ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
+                                                ResponseViewModel resUpdateDB = new ResponseViewModel();
+                                                if (resUpdate.P_NCODE == "0")
+                                                {
+                                                    ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "2");
+                                                    resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 1, DataConnection, trx);
+                                                }
+                                                else
+                                                {
+                                                    resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 0, DataConnection, trx);
+                                                }
 
 
+                                            }
+
+                                        }
+                                        else
+                                        {
+
+                                            ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "3");
                                         }
 
                                     }
-                                    else {
-
-                                        ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB } , "3");
+                                    catch (Exception ex) 
+                                    {
+                                       await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "3");
+                                        throw ex;
                                     }
-
+                             
 
 
                                 }
@@ -148,27 +160,30 @@ namespace WSGClienteCM.Services
 
 
                         }
-                        ResponseViewModel resgetState1   = new ResponseViewModel();
+                        ResponseViewModel resgetState1 = new ResponseViewModel();
                         List<string> processCodeToEmail = new List<string>();
 
                         //ResponseViewModel res2 = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "2");
-                    
-                            trx.Commit();
-                       
-                            resgetState1 = await _cargaMasivaRepository.GetByState("2");
 
-                            processCodeToEmail = resgetState1.ElistDetail.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
-                            foreach (string processCode in processCodeToEmail)
-                            {
-                                await SendEmails(processCode);
-                            }
+                        trx.Commit();
+
+                        resgetState1 = await _cargaMasivaRepository.GetByState("2");
+                        processCodeToEmail = resgetState1.ElistDetail.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
+                        resgetState1.P_MESSAGE = "Se proceso el terminó de procesar las tramas con códigos: " + String.Join(",", processCodeToEmail);
+                        resgetState1.P_NCODE = "0";
+
+                        foreach (string processCode in processCodeToEmail)
+                        {
+                           // await SendEmails(processCode);
+                        }
+                        responseViewModel = resgetState1;
 
                     }
                     else
                     {
                         responseViewModel = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "3");
-                        
-                       
+
+
 
                     }
 
@@ -179,7 +194,7 @@ namespace WSGClienteCM.Services
                     {
                         responseViewModel.P_MESSAGE = "No hay registros para procesar";
                     }
-                   
+
                 }
 
 
@@ -190,7 +205,7 @@ namespace WSGClienteCM.Services
                 if (trx != null) trx.Rollback();
                 responseViewModel.P_COD_ERR = "0";
                 responseViewModel.P_MESSAGE = ex.Message;
-               
+
             }
             finally
             {
@@ -201,6 +216,7 @@ namespace WSGClienteCM.Services
                 if (trx != null)
                     trx.Dispose();
             }
+
             return responseViewModel;
         }
         public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
@@ -314,11 +330,14 @@ namespace WSGClienteCM.Services
 
         }
 
-        public async Task<ResponseViewModel> SendEmails(string snroprocess) {
+        public async Task<ResponseViewModel> SendEmails(string snroprocess)
+        {
             ResponseViewModel _objReturn = null;
             _objReturn = new ResponseViewModel();
-            if (snroprocess != null || snroprocess != "") {
-                try {
+            if (snroprocess != null || snroprocess != "")
+            {
+                try
+                {
                     TramaRespuestaCargaMasivaResponse tramaExistosa;
                     TramaRespuestaCargaMasivaResponse tramaError;
                     TramaRespuestaCargaMasivaResponse correoUsuarios;
@@ -358,8 +377,8 @@ namespace WSGClienteCM.Services
                     string contentRootPath = _HostEnvironment.ContentRootPath;
                     string path_CuerpoCorreo = Path.Combine(contentRootPath, @"Templates\CorreoTramaCargaMasiva01.html");
                     string htmlCorreo = File.ReadAllText(path_CuerpoCorreo);
-                    string addressFrom = "cotizacionesdigitales@protectasecurity.pe";
-                    string pwdFrom = "0perac10nesSCTR$$_";
+                    string addressFrom = _appSettings.EmailFrom;
+                    string pwdFrom = _appSettings.PassWordFrom;
 
                     string addressTo;
                     string subject = "Detalle  Carga  Masiva - Cliente  360";
@@ -380,13 +399,14 @@ namespace WSGClienteCM.Services
                         return new ResponseViewModel();
                     }
                     _objReturn.P_NCODE = "0";
-                    _objReturn.P_SMESSAGE = "Se notificaron las tramas  con �xito";
+                    _objReturn.P_SMESSAGE = "Se notificaron las tramas  con Éxito";
 
                 }
-                catch (Exception ex){
+                catch (Exception ex)
+                {
                     _objReturn.P_NCODE = "2";
                     _objReturn.P_SMESSAGE = ex.Message;
-                   
+
                 }
 
 
@@ -396,7 +416,8 @@ namespace WSGClienteCM.Services
 
 
         }
-        public ClientBindingModel CompleteFields(ClientViewModel resMaster,DetailBindingModel resToComplete) {
+        public ClientBindingModel CompleteFields(ClientViewModel resMaster, DetailBindingModel resToComplete)
+        {
 
             ClientBindingModel clientBindingModel = new ClientBindingModel();
             clientBindingModel = _mapper.Map<ClientViewModel, ClientBindingModel>(resMaster);
@@ -404,11 +425,11 @@ namespace WSGClienteCM.Services
             clientBindingModel.P_NNUMREG = Convert.ToInt64(resToComplete.NNUMREG);
             clientBindingModel.P_SFILENAME = resToComplete.SFILENAME?.Trim();
             clientBindingModel.P_TipOper = "INS";
-            clientBindingModel.P_CodAplicacion= resToComplete.SCODAPLICACION?.Trim();
+            clientBindingModel.P_CodAplicacion = resToComplete.SCODAPLICACION?.Trim();
             clientBindingModel.P_NIDDOC_TYPE = resToComplete.NIDDOC_TYPE?.Trim();
             clientBindingModel.P_SIDDOC = resToComplete.SIDDOC?.Trim();
             clientBindingModel.P_NUSERCODE = resToComplete.NUSERCODE.ToString();
-            
+
 
             if (resToComplete.SFIRSTNAME != null)
             {
@@ -416,11 +437,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SFIRSTNAME = resToComplete.SFIRSTNAME?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SFIRSTNAME = resMaster.P_SFIRSTNAME?.Trim();
                 }
             }
-            else {
+            else
+            {
                 clientBindingModel.P_SFIRSTNAME = resMaster.P_SFIRSTNAME?.Trim();
             }
 
@@ -432,11 +455,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SLASTNAME = resToComplete.SLASTNAME?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SLASTNAME = resMaster.P_SLASTNAME?.Trim();
                 }
             }
-            else {
+            else
+            {
                 clientBindingModel.P_SLASTNAME = resMaster.P_SLASTNAME?.Trim();
             }
 
@@ -446,11 +471,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SLASTNAME2 = resToComplete.SLASTNAME2?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SLASTNAME2 = resMaster.P_SLASTNAME2?.Trim();
                 }
             }
-            else {
+            else
+            {
 
                 clientBindingModel.P_SLASTNAME2 = resMaster.P_SLASTNAME2?.Trim();
             }
@@ -461,7 +488,8 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SLEGALNAME = resToComplete.SLEGALNAME?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SLEGALNAME = resMaster.P_SLEGALNAME?.Trim();
                 }
             }
@@ -477,7 +505,8 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SSEXCLIEN = resToComplete.SSEXCLIEN?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SSEXCLIEN = resMaster.P_SSEXCLIEN?.Trim();
                 }
             }
@@ -492,18 +521,20 @@ namespace WSGClienteCM.Services
             {
                 if (resToComplete.NCIVILSTA?.Trim() != resMaster.P_NCIVILSTA?.Trim())
                 {
-                   
-                    
-                        clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA?.Trim();
-                    
-                    
+
+
+                    clientBindingModel.P_NCIVILSTA = resToComplete.NCIVILSTA?.Trim();
+
+
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
                 }
 
             }
-            else {
+            else
+            {
                 clientBindingModel.P_NCIVILSTA = resMaster.P_NCIVILSTA?.Trim();
             }
 
@@ -513,11 +544,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_NNATIONALITY = resToComplete.NNATIONALITY?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_NNATIONALITY = resMaster.P_NNATIONALITY?.Trim();
                 }
             }
-            else {
+            else
+            {
                 clientBindingModel.P_NNATIONALITY = resMaster.P_NNATIONALITY?.Trim();
             }
 
@@ -527,11 +560,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_DBIRTHDAT = resToComplete.DBIRTHDAT?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_DBIRTHDAT = resMaster.P_DBIRTHDAT?.Trim();
                 }
             }
-            else {
+            else
+            {
                 clientBindingModel.P_DBIRTHDAT = resMaster.P_DBIRTHDAT?.Trim();
             }
 
@@ -543,12 +578,14 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_COD_CUSPP = resToComplete.COD_CUSPP?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_COD_CUSPP = resMaster.P_COD_CUSPP?.Trim();
                 }
 
             }
-            else {
+            else
+            {
                 clientBindingModel.P_COD_CUSPP = resMaster.P_COD_CUSPP?.Trim();
             }
 
@@ -558,7 +595,7 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SISCLIENT_IND = resToComplete.SPROTEG_DATOS_IND?.Trim();
                 }
-                else 
+                else
                 {
                     clientBindingModel.P_SISCLIENT_IND = resMaster.P_SISCLIENT_IND?.Trim();
                 }
@@ -576,15 +613,17 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SBAJAMAIL_IND = resToComplete.SBAJAMAIL_IND?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SBAJAMAIL_IND = resMaster.P_SBAJAMAIL_IND?.Trim();
                 }
 
 
 
             }
-            else {
-                clientBindingModel.P_SBAJAMAIL_IND= resMaster.P_SBAJAMAIL_IND?.Trim();
+            else
+            {
+                clientBindingModel.P_SBAJAMAIL_IND = resMaster.P_SBAJAMAIL_IND?.Trim();
             }
 
             if (resToComplete.SISCLIENT_GBD != null && resToComplete.SISCLIENT_GBD?.Trim() != "0")
@@ -594,11 +633,13 @@ namespace WSGClienteCM.Services
                 {
                     clientBindingModel.P_SISCLIENT_GBD = resToComplete.SISCLIENT_GBD?.Trim();
                 }
-                else {
+                else
+                {
                     clientBindingModel.P_SISCLIENT_GBD = resMaster.P_SISCLIENT_GBD?.Trim();
                 }
             }
-            else {
+            else
+            {
                 clientBindingModel.P_SISCLIENT_GBD = resMaster.P_SISCLIENT_GBD?.Trim();
             }
             CiiuBindingModel ciiu = new CiiuBindingModel();
@@ -612,11 +653,11 @@ namespace WSGClienteCM.Services
                 ciiu.P_TipOper = null;
                 ciiu.P_DEFFECDATE = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
                 ciiu.P_SCIIU = resToComplete.COD_CIIU;
-                
-                
+
+
                 clientBindingModel.EListCIIUClient.Add(ciiu);
             }
-            
+
 
             clientBindingModel.EListAddresClient = new List<AddressBindingModel>();
 
@@ -626,7 +667,8 @@ namespace WSGClienteCM.Services
 
             //    clientBindingModel.EListAddresClient = _mapper.Map<List<AddressViewModel>,List<AddressBindingModel>>(resMaster.EListAddresClient);
             //}
-            if (resToComplete.STI_DIRE?.Trim() != "0" && resToComplete.STI_DIRE?.Trim() != null) {
+            if (resToComplete.STI_DIRE?.Trim() != "0" && resToComplete.STI_DIRE?.Trim() != null)
+            {
                 adr.P_ADDRESSTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
                 adr.P_SRECTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
                 adr.P_STI_DIRE = resToComplete.STI_DIRE == null ? null : resToComplete.STI_DIRE.Trim();
@@ -634,7 +676,7 @@ namespace WSGClienteCM.Services
                 adr.P_SNUM_DIRECCION = resToComplete.SNUM_DIRECCION == null ? null : resToComplete.SNUM_DIRECCION.Trim();
                 adr.P_STI_BLOCKCHALET = resToComplete.STI_BLOCKCHALET?.Trim() == "0" ? null : resToComplete.STI_BLOCKCHALET?.Trim();
                 adr.P_SBLOCKCHALET = resToComplete.SBLOCKCHALET == null ? null : resToComplete.SBLOCKCHALET.Trim();
-              
+
                 adr.P_STI_INTERIOR = resToComplete.STI_INTERIOR?.Trim() == "0" ? null : resToComplete.STI_INTERIOR.Trim();
                 adr.P_SNUM_INTERIOR = resToComplete.SNUM_INTERIOR == null ? null : resToComplete.SNUM_INTERIOR?.Trim();
                 adr.P_STI_CJHT = resToComplete.STI_CJHT?.Trim() == "0" ? null : resToComplete.STI_CJHT?.Trim();
@@ -649,7 +691,7 @@ namespace WSGClienteCM.Services
                 adr.P_NPROVINCE = resToComplete?.NPROVINCE == null ? null : resToComplete.NPROVINCE.ToString();
                 clientBindingModel.EListAddresClient.Add(adr);
             }
-           
+
 
             clientBindingModel.EListPhoneClient = new List<PhoneBindingModel>();
 
@@ -658,13 +700,14 @@ namespace WSGClienteCM.Services
             //if (resMaster.EListPhoneClient.Count > 0) {
             //    clientBindingModel.EListPhoneClient = _mapper.Map<List<PhoneViewModel>,List<PhoneBindingModel>>(resMaster.EListPhoneClient);
             //}
-            if (resToComplete.NPHONE_TYPE?.Trim() != "0" && resToComplete.NPHONE_TYPE?.Trim() != null) {
+            if (resToComplete.NPHONE_TYPE?.Trim() != "0" && resToComplete.NPHONE_TYPE?.Trim() != null)
+            {
                 phone.P_NAREA_CODE = resToComplete.NAREA_CODE == null ? null : resToComplete.NAREA_CODE?.Trim();
                 phone.P_NPHONE_TYPE = resToComplete.NPHONE_TYPE == null ? null : resToComplete.NPHONE_TYPE?.Trim();
                 phone.P_SPHONE = resToComplete.SPHONE == null ? null : resToComplete.SPHONE?.Trim();
                 clientBindingModel.EListPhoneClient.Add(phone);
             }
-           
+
 
             clientBindingModel.EListEmailClient = new List<EmailBindingModel>();
 
@@ -673,7 +716,8 @@ namespace WSGClienteCM.Services
             //if (resMaster.EListEmailClient.Count > 0) {
             //    clientBindingModel.EListEmailClient = _mapper.Map<List<EmailViewModel>,List<EmailBindingModel>>(resMaster.EListEmailClient);
             //}
-            if (resToComplete.SEMAILTYPE?.Trim() != "0" && resToComplete.SEMAILTYPE?.Trim() != null) {
+            if (resToComplete.SEMAILTYPE?.Trim() != "0" && resToComplete.SEMAILTYPE?.Trim() != null)
+            {
                 emailBindingModel.P_SEMAILTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE?.Trim();
                 emailBindingModel.P_SE_MAIL = resToComplete.SE_MAIL == null ? null : resToComplete.SE_MAIL?.Trim();
                 emailBindingModel.P_SRECTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE?.Trim();

@@ -205,7 +205,7 @@ namespace WSGClienteCM.Repository
                 OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
                 P_SMESSAGE.Size = 4000;
                 OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
-                OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, detail, ParameterDirection.Output);
+                OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
                 parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
                 parameters.Add(P_SMESSAGE);
                 parameters.Add(P_NCODE);

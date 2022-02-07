@@ -9,6 +9,8 @@ namespace WSGClienteCM.Utils
         public string ConnectionStringTimeP { get; set; }
         public string ConnectionStringConciliacion { get; set; }
         public string ClientService { get; set; }
+        public string EmailFrom { get; set; }
+        public string PassWordFrom { get; set; }
 
         //public static String[] CampoObligatorio { get { return Util.ObtainConfig("CAMPO_OBLIGATORIO"); } }
         //public static String[] TipoDatoNumerico { get { return Util.ObtainConfig("TIPO_DATO_NO_NUMERICO"); } }
