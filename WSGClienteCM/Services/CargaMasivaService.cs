@@ -70,8 +70,7 @@ namespace WSGClienteCM.Services
                                 detailStateParsed1.SIDDOC = "El número de documento es obligatorio";
                                 detailStateParsed1.NNROPROCESO_DET = row.NNROPROCESO_DET;
                                 await _cargaMasivaRepository.SaveStateRow(detailStateParsed1, DataConnection, trx);
-                                int a = 4;
-                               int b = 10 / (4-a);
+                               
                             }
                             else
                             {
