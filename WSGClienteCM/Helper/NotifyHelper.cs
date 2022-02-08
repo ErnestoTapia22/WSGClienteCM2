@@ -137,30 +137,35 @@ namespace WSGClienteCM.Helper
 
         public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, int port, List<Archivo> tramasList = null)
         { 
-            SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");    
-
-            using (var mail = new MailMessage())
-            {
-                mail.From = new MailAddress(addressFrom);   
-                mail.To.Add(addressTo);
-                mail.IsBodyHtml = true;
-                mail.Subject = subject;
-                mail.Body = body;
-                System.Net.Mail.Attachment attachment;
-
-                foreach (Archivo archivo in tramasList)
+            SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+            try {
+                using (var mail = new MailMessage())
                 {
-                    MemoryStream stream1 = new MemoryStream(archivo.tramaEnviar64);
-                    attachment = new System.Net.Mail.Attachment(stream1, archivo.nombre, archivo.tipoMIME);
-                    mail.Attachments.Add(attachment);
-                }
+                    mail.From = new MailAddress(addressFrom);
+                    mail.To.Add(addressTo);
+                    mail.IsBodyHtml = true;
+                    mail.Subject = subject;
+                    mail.Body = body;
+                    System.Net.Mail.Attachment attachment;
 
-                SmtpServer.Port = port;
-                SmtpServer.UseDefaultCredentials = false;
-                SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
-                SmtpServer.EnableSsl = true;
-                await SmtpServer.SendMailAsync(mail);
-            }         
+                    foreach (Archivo archivo in tramasList)
+                    {
+                        MemoryStream stream1 = new MemoryStream(archivo.tramaEnviar64);
+                        attachment = new System.Net.Mail.Attachment(stream1, archivo.nombre, archivo.tipoMIME);
+                        mail.Attachments.Add(attachment);
+                    }
+
+                    SmtpServer.Port = port;
+                    SmtpServer.UseDefaultCredentials = false;
+                    SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
+                    SmtpServer.EnableSsl = true;
+                    await SmtpServer.SendMailAsync(mail);
+                }
+            }
+            catch (SmtpFailedRecipientsException ex){
+                throw ex;
+            }
+                
         }
 
     }
