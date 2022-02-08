@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
 using System.Threading.Tasks;
 using WSGClienteCM.Models;
+using WSGClienteCM.Utils;
 
 namespace WSGClienteCM.Helper
 {
@@ -133,7 +135,7 @@ namespace WSGClienteCM.Helper
             return objArchivo;
         }
 
-        public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, List<Archivo> tramasList = null)
+        public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, int port, List<Archivo> tramasList = null)
         { 
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");    
 

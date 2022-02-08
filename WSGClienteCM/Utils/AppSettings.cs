@@ -11,6 +11,7 @@ namespace WSGClienteCM.Utils
         public string ClientService { get; set; }
         public string EmailFrom { get; set; }
         public string PassWordFrom { get; set; }
+        public string PortEmail { get; set; }
 
         //public static String[] CampoObligatorio { get { return Util.ObtainConfig("CAMPO_OBLIGATORIO"); } }
         //public static String[] TipoDatoNumerico { get { return Util.ObtainConfig("TIPO_DATO_NO_NUMERICO"); } }
