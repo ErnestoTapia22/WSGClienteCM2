@@ -142,7 +142,7 @@ namespace WSGClienteCM.Helper
                 using (var mail = new MailMessage())
                 {
                     mail.From = new MailAddress(addressFrom);
-                    mail.To.Add(addressTo);
+                    mail.To.Add("ernesto.tapia@materiagris.pe");
                     mail.IsBodyHtml = true;
                     mail.Subject = subject;
                     mail.Body = body;
