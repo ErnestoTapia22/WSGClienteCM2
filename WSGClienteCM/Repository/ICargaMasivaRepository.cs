@@ -13,9 +13,10 @@ namespace WSGClienteCM.Repository
         Task<ResponseViewModel> InsertDetail(List<ClientBindingModel> items, DbConnection cn, DbTransaction trx);
         Task<ResponseViewModel> GetByState(string state);
         Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value);
-        Task<ResponseViewModel> ValidateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx);
-        Task<ResponseViewModel> SaveStateRow(DetailBindingModel detailStateParsed, DbConnection dataConnection, DbTransaction trx);
-        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state, DbConnection cn, DbTransaction trx);
+        Task<ResponseViewModel> ValidateRow(DetailBindingModel item);
+        Task<ResponseViewModel> SaveStateRow(DetailBindingModel detailStateParsed);
+        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state);
+        Task<ResponseViewModel> GetHeadersByState(string state);
         //hcama@mg 26.01.2021 ini 
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioExitosa(string P_SNOPROCESO);
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioErrores(string P_SNOPROCESO);

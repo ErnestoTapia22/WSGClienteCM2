@@ -38,186 +38,163 @@ namespace WSGClienteCM.Services
 
         public async Task<ResponseViewModel> InitProcess()
         {
-            DbConnection DataConnection = _connectionBase.ConnectionGet(ConnectionBase.enuTypeDataBase.OracleVTime);
-            DbTransaction trx = null;
+         
             ResponseViewModel responseViewModel = new ResponseViewModel();
             responseViewModel.EListErrores = new List<ListViewErrores>();
+         
 
             try
             {
                 // selecciona registros con estado 0
-                responseViewModel = await _cargaMasivaRepository.GetByState("0");
-                if (responseViewModel.P_COD_ERR == "0" && responseViewModel.ElistDetail.Count > 0)
+                responseViewModel = await _cargaMasivaRepository.GetHeadersByState("0");
+               
+                if (responseViewModel.P_COD_ERR == "0" && responseViewModel.ElistHeaders.Count > 0)
                 {
-                    //selecciona los codigos para modificar estado a 1=en proceso
                     List<string> processCodeToUpdate = new List<string>();
-                    processCodeToUpdate = responseViewModel.ElistDetail.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
-                    DataConnection.Open();
-                    trx = DataConnection.BeginTransaction();
+                    processCodeToUpdate = responseViewModel.ElistHeaders.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
                     ResponseViewModel res = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "1");
-
-                    if (res.P_COD_ERR == "0")
+                    foreach (HeaderBindingModel header in responseViewModel.ElistHeaders)
                     {
-
-                        foreach (DetailBindingModel row in responseViewModel.ElistDetail)
+                        ResponseViewModel responseDetail = new ResponseViewModel();
+                        responseDetail = await _cargaMasivaRepository.GetByState(header.SNROPROCESO_CAB);
+                        if (responseDetail.P_COD_ERR == "0" && responseDetail.ElistDetail.Count > 0)
                         {
-                            DetailBindingModel detailState = new DetailBindingModel();
-                            ResponseViewModel resval = new ResponseViewModel();
-                            // primera validacion tipo y numero de documento
-                            if (row.SIDDOC == "" || row.SIDDOC == null)// validar bien paso tipo doc =0
+                            foreach (DetailBindingModel row in responseDetail.ElistDetail)
                             {
-                                DetailBindingModel detailStateParsed1 = new DetailBindingModel();
-                                detailStateParsed1.SIDDOC = "El número de documento es obligatorio";
-                                detailStateParsed1.NNROPROCESO_DET = row.NNROPROCESO_DET;
-                                await _cargaMasivaRepository.SaveStateRow(detailStateParsed1, DataConnection, trx);
-                               
-                            }
-                            else
-                            {
-                                int idInserted = 0;
-
-                                // validacion
-                                resval = await _cargaMasivaRepository.ValidateRow(row, DataConnection, trx);
-
-                                if (resval.EListErrores.Count > 0)
+                                DetailBindingModel detailState = new DetailBindingModel();
+                                ResponseViewModel resval = new ResponseViewModel();
+                                // primera validacion tipo y numero de documento
+                                if (row.SIDDOC == "" || row.SIDDOC == null)// validar bien paso tipo doc =0
                                 {
-                                    DetailBindingModel detailStateParsed = new DetailBindingModel();
-                                    ResponseViewModel resInsertState = new ResponseViewModel();
-                                    ListViewErrores error = new ListViewErrores();
-                                    detailStateParsed = ParseErrorToModel(resval.EListErrores);
-                                    detailStateParsed.NNROPROCESO_DET = row.NNROPROCESO_DET;
-                                    resInsertState = await _cargaMasivaRepository.SaveStateRow(detailStateParsed, DataConnection, trx);
-                                    idInserted = Convert.ToInt32(resInsertState.P_NIDCM);
-                                    if (resInsertState.P_COD_ERR != "0")
-                                    {
-                                        error.SMENSAJE = "No se puedo insertar el estado del registro con id: " + row.NNROPROCESO_DET + "_" + resInsertState.P_MESSAGE;
-                                        error.SGRUPO = "GES_CAR_MAS_CLI_DET_STATE";
-                                        responseViewModel.EListErrores.Add(error);
-                                    }
-                                    ResponseViewModel resError3 = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "2");
+                                    DetailBindingModel detailStateParsed1 = new DetailBindingModel();
+                                    detailStateParsed1.SIDDOC = "El número de documento es obligatorio";
+                                    detailStateParsed1.NNROPROCESO_DET = row.NNROPROCESO_DET;
+                                    await _cargaMasivaRepository.SaveStateRow(detailStateParsed1);
+
                                 }
                                 else
                                 {
+                                    int idInserted = 0;
 
-                                    //Consultar
-                                    PostRequest postRequest = new PostRequest
+                                    // validacion
+                                    resval = await _cargaMasivaRepository.ValidateRow(row);
+
+                                    if (resval.EListErrores.Count > 0)
                                     {
-                                        P_NUSERCODE = row.NUSERCODE.ToString().Trim(),
-                                        P_NIDDOC_TYPE = row.NIDDOC_TYPE.Trim(),
-                                        P_SIDDOC = row.SIDDOC.Trim(),
-                                        P_CodAplicacion = "GESTORCLIENTE",//row.SCODAPLICACION.Trim(),
-                                        P_TipOper = "CON"
-                                    };
-                                    try {
-
-                                        string result = await PostRequest(_appSettings.ClientService, postRequest);
-                                        ResponseViewModel resClientService = new ResponseViewModel();
-                                        resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
-                                        if (resClientService != null)
+                                        DetailBindingModel detailStateParsed = new DetailBindingModel();
+                                        ResponseViewModel resInsertState = new ResponseViewModel();
+                                        ListViewErrores error = new ListViewErrores();
+                                        detailStateParsed = ParseErrorToModel(resval.EListErrores);
+                                        detailStateParsed.NNROPROCESO_DET = row.NNROPROCESO_DET;
+                                        resInsertState = await _cargaMasivaRepository.SaveStateRow(detailStateParsed);
+                                        idInserted = Convert.ToInt32(resInsertState.P_NIDCM);
+                                        if (resInsertState.P_COD_ERR != "0")
                                         {
-                                            if (resClientService.P_NCODE == "0")
+                                            error.SMENSAJE = "No se puedo insertar el estado del registro con id: " + row.NNROPROCESO_DET + "_" + resInsertState.P_MESSAGE;
+                                            error.SGRUPO = "GES_CAR_MAS_CLI_DET_STATE";
+                                            responseViewModel.EListErrores.Add(error);
+                                        }
+
+                                    }
+                                    else
+                                    {
+
+                                        //Consultar
+                                        PostRequest postRequest = new PostRequest
+                                        {
+                                            P_NUSERCODE = row.NUSERCODE.ToString().Trim(),
+                                            P_NIDDOC_TYPE = row.NIDDOC_TYPE.Trim(),
+                                            P_SIDDOC = row.SIDDOC.Trim(),
+                                            P_CodAplicacion = "GESTORCLIENTE",//row.SCODAPLICACION.Trim(),
+                                            P_TipOper = "CON"
+                                        };
+                                        try
+                                        {
+
+                                            string result = await PostRequest(_appSettings.ClientService, postRequest);
+                                            ResponseViewModel resClientService = new ResponseViewModel();
+                                            resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
+                                            if (resClientService != null)
                                             {
-                                                ClientBindingModel resToSend = new ClientBindingModel();
-                                                ClientViewModel resToSend2 = new ClientViewModel();
-                                                resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
-
-                                                string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
-                                                ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
-                                                ResponseViewModel resUpdateDB = new ResponseViewModel();
-                                                if (resUpdate.P_NCODE == "0")
+                                                
+                                                if (resClientService.P_NCODE == "0")
                                                 {
-                                                    ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "2");
-                                                    resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 1, DataConnection, trx);
-                                                }
-                                                else
-                                                {
-                                                    resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 0, DataConnection, trx);
+                                                    ClientBindingModel resToSend = new ClientBindingModel();
+                                                    ClientViewModel resToSend2 = new ClientViewModel();
+                                                    resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
+
+                                                    string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
+                                                    ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
+                                                    ResponseViewModel resUpdateDB = new ResponseViewModel();
+                                                    if (resUpdate.P_NCODE == "0")
+                                                    {
+
+                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 1);
+                                                    }
+                                                    else
+                                                    {
+                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 0);
+                                                    }
+
+
                                                 }
 
+                                            }
+                                            else
+                                            {
+                                                await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Error al cosultar datos en WSGClienteService", 1);
 
                                             }
 
                                         }
-                                        else
+                                        catch (Exception ex)
                                         {
+                                            await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Ocurrió un error en el proceso", 1);
+                                            continue;
 
-                                            ResponseViewModel resError = await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "3");
                                         }
 
-                                    }
-                                    catch (Exception ex) 
-                                    {
-                                       await _cargaMasivaRepository.UpdateStateHeader(new List<string> { row.SNROPROCESO_CAB }, "3");
-                                        throw ex;
-                                    }
-                             
 
 
+                                    }
                                 }
+
+
+
                             }
-
-
-
+                            await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "2");
+                            await SendEmails(header.SNROPROCESO_CAB);
                         }
-                        ResponseViewModel resgetState1 = new ResponseViewModel();
-                        List<string> processCodeToEmail = new List<string>();
-
-                        //ResponseViewModel res2 = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "2");
-
-                        trx.Commit();
-
-                        resgetState1 = await _cargaMasivaRepository.GetByState("2");
-                        processCodeToEmail = resgetState1.ElistDetail.GroupBy(x => x.SNROPROCESO_CAB).Select(p => p.First().SNROPROCESO_CAB).ToList();
-                        resgetState1.P_MESSAGE = "Se proceso el terminó de procesar las tramas con códigos: " + String.Join(",", processCodeToEmail);
-                        resgetState1.P_NCODE = "0";
-
-                        foreach (string processCode in processCodeToEmail)
-                        {
-                           // await SendEmails(processCode);
+                        else {
+                            await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "3");
                         }
-                        responseViewModel = resgetState1;
-
-                    }
-                    else
-                    {
-                        responseViewModel = await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "3");
-
-
+                        
 
                     }
 
                 }
-                else
-                {
+                else {
+
                     if (responseViewModel.P_COD_ERR == "0")
                     {
                         responseViewModel.P_MESSAGE = "No hay registros para procesar";
                     }
-
+                    
                 }
-
 
             }
             catch (Exception ex)
             {
                 //await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "-1", DataConnection, trx);
-                if (trx != null) trx.Rollback();
+               
                 responseViewModel.P_COD_ERR = "0";
                 responseViewModel.P_MESSAGE = ex.Message;
 
             }
-            finally
-            {
-                if (DataConnection.State == ConnectionState.Open)
-                {
-                    DataConnection.Close();
-                }
-                if (trx != null)
-                    trx.Dispose();
-            }
 
             return responseViewModel;
         }
+       
         public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
         {
             string processId = request[0].P_SNOPROCESO;

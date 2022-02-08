@@ -193,7 +193,7 @@ namespace WSGClienteCM.Repository
             return res;
 
         }
-        public async Task<ResponseViewModel> GetByState(string state)
+        public async Task<ResponseViewModel> GetByState(string code)
         {
             List<DetailBindingModel> detail = new List<DetailBindingModel>();
             ResponseViewModel res = new ResponseViewModel();
@@ -206,7 +206,7 @@ namespace WSGClienteCM.Repository
                 P_SMESSAGE.Size = 4000;
                 OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
                 OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
-                parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_CODE", OracleDbType.Varchar2, code, ParameterDirection.Input));
                 parameters.Add(P_SMESSAGE);
                 parameters.Add(P_NCODE);
                 parameters.Add(P_TABLA);
@@ -248,7 +248,7 @@ namespace WSGClienteCM.Repository
                     parameters.Add(P_MESSAGE);
                     parameters.Add(P_COD_ERR);
 
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync2(string.Format("{0}.{1}", Package3, "UPD_STATE_CM_CAB"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "UPD_STATE_CM_CAB"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                         if (P_COD_ERR.Value.ToString() == "1")
                         {
@@ -279,7 +279,7 @@ namespace WSGClienteCM.Repository
 
 
         }
-        public async Task<ResponseViewModel> ValidateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> ValidateRow(DetailBindingModel item)
         {
 
             ResponseViewModel res = new ResponseViewModel();
@@ -342,7 +342,7 @@ namespace WSGClienteCM.Repository
                 parameters.Add(P_COD_ERR);
                 parameters.Add(P_TABLA);
                 parameters.Add(P_CAMPO);
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "VAL_CLIENT_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "VAL_CLIENT_CM_DET"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
 
                     ElistErrores = dr.ReadRowsList<ListViewErrores>();
@@ -371,7 +371,7 @@ namespace WSGClienteCM.Repository
              
 
        
-        public async Task<ResponseViewModel> SaveStateRow(DetailBindingModel item, DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> SaveStateRow(DetailBindingModel item)
         {
 
             ResponseViewModel res = new ResponseViewModel();
@@ -434,7 +434,7 @@ namespace WSGClienteCM.Repository
                 parameters.Add(P_COD_ERR);
 
 
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_STATE_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "INS_STATE_CM_DET"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
                     res.P_COD_ERR = P_COD_ERR.Value.ToString();
                     res.P_MESSAGE = P_MESSAGE.Value.ToString();
@@ -454,7 +454,7 @@ namespace WSGClienteCM.Repository
 
            
         }
-        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value,int state, DbConnection cn, DbTransaction trx)
+        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value,int state)
         {
             ResponseViewModel res = new ResponseViewModel();
             try
@@ -473,7 +473,7 @@ namespace WSGClienteCM.Repository
                     parameters.Add(P_MESSAGE);
                     parameters.Add(P_COD_ERR);
 
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "UPD_STATE_RESPONSE"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "UPD_STATE_RESPONSE"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
                             res.P_COD_ERR = P_COD_ERR.Value.ToString();
                             res.P_MESSAGE = P_MESSAGE.Value.ToString();
@@ -490,6 +490,42 @@ namespace WSGClienteCM.Repository
             return res;
 
 
+        }
+
+        public async Task<ResponseViewModel> GetHeadersByState(string state)
+        {
+            List<HeaderBindingModel> headers = new List<HeaderBindingModel>();
+            ResponseViewModel res = new ResponseViewModel();
+            List<OracleParameter> parameters = new List<OracleParameter>();
+
+            try
+            {
+
+                OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                P_SMESSAGE.Size = 4000;
+                OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
+                parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
+                parameters.Add(P_SMESSAGE);
+                parameters.Add(P_NCODE);
+                parameters.Add(P_TABLA);
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "GET_HEADERS_BY_STATE"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+
+                    headers = dr.ReadRowsList<HeaderBindingModel>();
+
+                }
+                res.P_COD_ERR = P_NCODE.Value.ToString();
+                res.P_MESSAGE = P_SMESSAGE.Value.ToString();
+                res.ElistHeaders = headers;
+
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+            }
+            return res;
         }
 
         //hcama@mg 26.01.2021 ini 
