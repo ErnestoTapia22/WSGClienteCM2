@@ -155,7 +155,7 @@ namespace WSGClienteCM.Helper
                     mail.Attachments.Add(attachment);
                 }
 
-                SmtpServer.Port = 587;
+                SmtpServer.Port = port;
                 SmtpServer.UseDefaultCredentials = false;
                 SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
                 SmtpServer.EnableSsl = true;
