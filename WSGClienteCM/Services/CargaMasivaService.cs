@@ -367,7 +367,7 @@ namespace WSGClienteCM.Services
                     foreach (EmailViewModel email in correoUsuarios.correoUsuarios)
                     {
                         addressTo = email.P_SE_MAIL;
-                        objNotifyHelper.SendMail(addressFrom, pwdFrom, addressTo, subject, htmlCorreo,Convert.ToInt32(_appSettings.PortEmail), tramasList);
+                        await objNotifyHelper.SendMail(addressFrom, pwdFrom, addressTo, subject, htmlCorreo,Convert.ToInt32(_appSettings.PortEmail), tramasList);
                     }
 
                     if (_objReturn == null)
