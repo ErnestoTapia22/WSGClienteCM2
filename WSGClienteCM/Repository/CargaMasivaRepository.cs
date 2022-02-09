@@ -615,7 +615,7 @@ namespace WSGClienteCM.Repository
 
                             clientBindingModel.P_COD_CIIU = dr["P_COD_CIIU"].ToString();
                             clientBindingModel.P_COD_CUSPP = dr["P_COD_CUSPP"].ToString();
-                            //  clientBindingModel.P_SISCLIENT_IND = dr["P_SISCLIENT_IND"].ToString();
+                            clientBindingModel.P_SISCLIENT_IND = dr["P_SPROTEG_DATOS_IND"].ToString();
                             clientBindingModel.P_SBAJAMAIL_IND = dr["P_SBAJAMAIL_IND"].ToString();
                             clientBindingModel.P_SISCLIENT_GBD = dr["P_SISCLIENT_GBD"].ToString();
                             //  clientBindingModel.P_SPROMOTIONS = dr["P_SPROMOTIONS"].ToString();

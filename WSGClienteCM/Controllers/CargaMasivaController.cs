@@ -81,7 +81,8 @@ namespace WSGClienteCM.Controllers
 
         }
 
-        public static void WriteErrorLog(string Message)
+        [HttpPost("test/Webhook")]
+        public static void WriteErrorLog(string issue)
         {
 
 
@@ -91,7 +92,7 @@ namespace WSGClienteCM.Controllers
             try
             {
                 sw = new StreamWriter(@"D:\LogFile.txt", true);
-                sw.WriteLine(DateTime.Now.ToString() + ": " + Message);
+                sw.WriteLine(DateTime.Now.ToString() + ": " + issue);
                 sw.Flush();
                 sw.Close();
 

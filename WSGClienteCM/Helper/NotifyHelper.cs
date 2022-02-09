@@ -15,7 +15,7 @@ namespace WSGClienteCM.Helper
         public Archivo ComposeExcelErrores(string contentRootPath, List<ClientBindingModel> trama)
         {
             Archivo objArchivo = new Archivo();
-            objArchivo.nombre = "ListadoClientesErrores.xls";
+            objArchivo.nombre = "ListadoClientesErrores.xlsx";
             objArchivo.tipoMIME= "application/vnd.ms-excel";
             //try
             //{
@@ -56,7 +56,8 @@ namespace WSGClienteCM.Helper
         public Archivo ComposeExcelExitoso(string contentRootPath, List<ClientBindingModel> trama)
         {
             Archivo objArchivo = new Archivo();
-            objArchivo.nombre = "ListadoClientesExitoso.xls";
+            string time = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+            objArchivo.nombre = "ListadoClientesExitoso" + time + ".xlsx";
             objArchivo.tipoMIME= "application/vnd.ms-excel";
             //try
             //{
@@ -124,7 +125,7 @@ namespace WSGClienteCM.Helper
                 path_trama = Path.Combine(contentRootPath, @"Templates\TramaExitosa.html");                
                 htmlTrama = System.IO.File.ReadAllText(path_trama);              
                 htmlTrama = htmlTrama.Replace("[TramaExitosa]", htmlBodyTrama);
-                objArchivo.tramaEnviar64 = System.Text.Encoding.UTF8.GetBytes(htmlTrama);
+                objArchivo.tramaEnviar64 = System.Text.Encoding.Default.GetBytes(htmlTrama);
              
             //}
             //catch (Exception ex)

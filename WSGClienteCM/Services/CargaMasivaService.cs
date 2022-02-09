@@ -149,7 +149,7 @@ namespace WSGClienteCM.Services
                                         }
                                         catch (Exception ex)
                                         {
-                                            await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Ocurrió un error en el proceso", 1);
+                                            await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Ocurrió un error en el proceso :" + ex.Message, 0);
                                             continue;
 
                                         }
@@ -361,8 +361,14 @@ namespace WSGClienteCM.Services
 
 
                     NotifyHelper objNotifyHelper = new NotifyHelper();
-                    tramasList.Add(objNotifyHelper.ComposeExcelErrores(contentRootPath, tramaError.tramaErrores));
-                    tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
+                    if (tramaError.tramaErrores.Count > 0) {
+                        tramasList.Add(objNotifyHelper.ComposeExcelErrores(contentRootPath, tramaError.tramaErrores));
+                    }
+
+                    if (tramaExistosa.tramaExitosa.Count > 0) {
+                        tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
+                    }
+                   
 
                     foreach (EmailViewModel email in correoUsuarios.correoUsuarios)
                     {
