@@ -15,8 +15,9 @@ namespace WSGClienteCM.Helper
         public Archivo ComposeExcelErrores(string contentRootPath, List<ClientBindingModel> trama)
         {
             Archivo objArchivo = new Archivo();
-            objArchivo.nombre = "ListadoClientesErrores.xlsx";
-            objArchivo.tipoMIME= "application/vnd.ms-excel";
+            string time = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+            objArchivo.nombre = "ListadoClientesErrores" + time + ".xlsx";
+            objArchivo.tipoMIME= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             //try
             //{
    
@@ -58,7 +59,7 @@ namespace WSGClienteCM.Helper
             Archivo objArchivo = new Archivo();
             string time = DateTime.Now.ToString("yyyyMMddHHmmssffff");
             objArchivo.nombre = "ListadoClientesExitoso" + time + ".xlsx";
-            objArchivo.tipoMIME= "application/vnd.ms-excel";
+            objArchivo.tipoMIME= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
             //try
             //{
    
