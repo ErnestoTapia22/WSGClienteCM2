@@ -1,9 +1,11 @@
-﻿using Microsoft.Extensions.Options;
+﻿using HelperSharp;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Mail;
+using System.Text;
 using System.Threading.Tasks;
 using WSGClienteCM.Models;
 using WSGClienteCM.Utils;
@@ -16,8 +18,8 @@ namespace WSGClienteCM.Helper
         {
             Archivo objArchivo = new Archivo();
             string time = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-            objArchivo.nombre = "ListadoClientesErrores" + time + ".xlsx";
-            objArchivo.tipoMIME= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            objArchivo.nombre = "ListadoClientesErrores_" + time + ".xls";
+            objArchivo.tipoMIME= "application/vnd.ms-excel";
             //try
             //{
    
@@ -44,12 +46,13 @@ namespace WSGClienteCM.Helper
                  path_trama = Path.Combine(contentRootPath, @"Templates\TramaErrores.html");                
                 htmlTrama = System.IO.File.ReadAllText(path_trama);              
                 htmlTrama = htmlTrama.Replace("[TramaError]", htmlBodyTrama);
-                objArchivo.tramaEnviar64 = System.Text.Encoding.UTF8.GetBytes(htmlTrama);
-             
+                objArchivo.tramaEnviar64 = UTF8Encoding.UTF8.GetBytes(htmlTrama.EscapeAccentsToHtmlEntities()); 
+
+
             //}
             //catch (Exception ex)
             //{
-              
+
             //}
 
             return objArchivo;
@@ -58,12 +61,14 @@ namespace WSGClienteCM.Helper
         {
             Archivo objArchivo = new Archivo();
             string time = DateTime.Now.ToString("yyyyMMddHHmmssffff");
-            objArchivo.nombre = "ListadoClientesExitoso" + time + ".xlsx";
-            objArchivo.tipoMIME= "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            objArchivo.nombre = "ListadoClientesExitoso_" + time + ".xls";
+            objArchivo.tipoMIME= "application/vnd.ms-excel";
+           
+
             //try
             //{
-   
-                string tdi = "<td style='border:1px solid black !important;text-align:center;vertical-align:middle;' >";
+
+            string tdi = "<td style='border:1px solid black !important;text-align:center;vertical-align:middle;' >";
                 string tdfi = "</td>";
                 string htmlBodyTrama = string.Empty;
 
@@ -126,7 +131,7 @@ namespace WSGClienteCM.Helper
                 path_trama = Path.Combine(contentRootPath, @"Templates\TramaExitosa.html");                
                 htmlTrama = System.IO.File.ReadAllText(path_trama);              
                 htmlTrama = htmlTrama.Replace("[TramaExitosa]", htmlBodyTrama);
-                objArchivo.tramaEnviar64 = System.Text.Encoding.Default.GetBytes(htmlTrama);
+                objArchivo.tramaEnviar64 = System.Text.Encoding.UTF8.GetBytes(htmlTrama.EscapeAccentsToHtmlEntities());
              
             //}
             //catch (Exception ex)
@@ -140,31 +145,34 @@ namespace WSGClienteCM.Helper
         public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, int port, List<Archivo> tramasList = null)
         { 
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
+            Attachment attachment = null;
             try {
                 using (var mail = new MailMessage())
                 {
-                    mail.From = new MailAddress(addressFrom);
-                    mail.To.Add(addressTo);
+                    mail.From = new MailAddress(addressFrom, "Carga Masiva - Gestor de Clientes", Encoding.UTF8);
+                    mail.To.Add("ernesto.tapia@materiagris.pe");
                     mail.IsBodyHtml = true;
                     mail.Subject = subject;
                     mail.Body = body;
-                    System.Net.Mail.Attachment attachment;
+                   
 
                     foreach (Archivo archivo in tramasList)
                     {
                         MemoryStream stream1 = new MemoryStream(archivo.tramaEnviar64);
-                        attachment = new System.Net.Mail.Attachment(stream1, archivo.nombre, archivo.tipoMIME);
+                        attachment = new Attachment(stream1, archivo.nombre, archivo.tipoMIME);
                         mail.Attachments.Add(attachment);
                     }
 
                     SmtpServer.Port = port;
-                    SmtpServer.UseDefaultCredentials = false;
+                    
                     SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
                     SmtpServer.EnableSsl = true;
-                   await  SmtpServer.SendMailAsync(mail);
+                    await  SmtpServer.SendMailAsync(mail);
+                    attachment.Dispose();
                 }
             }
             catch (SmtpFailedRecipientsException ex){
+                attachment.Dispose();
                 throw ex;
             }
                 

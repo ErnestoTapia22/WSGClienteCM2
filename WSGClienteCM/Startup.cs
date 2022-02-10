@@ -35,6 +35,7 @@ namespace WSGClienteCM
             });
             var mappingConfig = new MapperConfiguration(mc => {
                 mc.AddProfile(new ClientProfile());
+                mc.ValidateInlineMaps = false;
             });
             IMapper mapper = mappingConfig.CreateMapper();
             services.AddSingleton(mapper);

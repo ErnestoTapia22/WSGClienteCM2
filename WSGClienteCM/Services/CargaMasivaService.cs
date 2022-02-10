@@ -654,12 +654,12 @@ namespace WSGClienteCM.Services
                 adr.P_ADDRESSTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
                 adr.P_SRECTYPE = resToComplete.ADDRESSTYPE == null ? null : resToComplete.ADDRESSTYPE.Trim();
                 adr.P_STI_DIRE = resToComplete.STI_DIRE == null ? null : resToComplete.STI_DIRE.Trim();
-                adr.P_SNOM_DIRECCION = resToComplete.SNOM_DIRECCION == null ? null : resToComplete.SNOM_DIRECCION.Trim();
-                adr.P_SNUM_DIRECCION = resToComplete.SNUM_DIRECCION == null ? null : resToComplete.SNUM_DIRECCION.Trim();
+                adr.P_SNOM_DIRECCION = resToComplete.SNOM_DIRECCION == null ? null : resToComplete.SNOM_DIRECCION?.Trim();
+                adr.P_SNUM_DIRECCION = resToComplete.SNUM_DIRECCION == null ? null : resToComplete.SNUM_DIRECCION?.Trim();
                 adr.P_STI_BLOCKCHALET = resToComplete.STI_BLOCKCHALET?.Trim() == "0" ? null : resToComplete.STI_BLOCKCHALET?.Trim();
-                adr.P_SBLOCKCHALET = resToComplete.SBLOCKCHALET == null ? null : resToComplete.SBLOCKCHALET.Trim();
+                adr.P_SBLOCKCHALET = resToComplete.SBLOCKCHALET == null ? null : resToComplete.SBLOCKCHALET?.Trim();
 
-                adr.P_STI_INTERIOR = resToComplete.STI_INTERIOR?.Trim() == "0" ? null : resToComplete.STI_INTERIOR.Trim();
+                adr.P_STI_INTERIOR = resToComplete.STI_INTERIOR?.Trim() == "0" ? null : resToComplete.STI_INTERIOR?.Trim();
                 adr.P_SNUM_INTERIOR = resToComplete.SNUM_INTERIOR == null ? null : resToComplete.SNUM_INTERIOR?.Trim();
                 adr.P_STI_CJHT = resToComplete.STI_CJHT?.Trim() == "0" ? null : resToComplete.STI_CJHT?.Trim();
                 adr.P_SNOM_CJHT = resToComplete.SNOM_CJHT == null ? null : resToComplete.SNOM_CJHT?.Trim();
@@ -667,8 +667,8 @@ namespace WSGClienteCM.Services
                 adr.P_SMANZANA = resToComplete.SMANZANA == null ? null : resToComplete.SMANZANA?.Trim();
                 adr.P_SLOTE = resToComplete.SLOTE == null ? null : resToComplete.SLOTE?.Trim();
                 adr.P_SREFERENCE = resToComplete.SREFERENCIA == null ? null : resToComplete.SREFERENCIA?.Trim();
-                adr.P_NMUNICIPALITY = resToComplete.NMUNICIPALITY == null ? null : resToComplete.NMUNICIPALITY.Trim();
-                adr.P_NCOUNTRY = resToComplete.NCOUNTRY == null ? null : resToComplete.NCOUNTRY.Trim();
+                adr.P_NMUNICIPALITY = resToComplete.NMUNICIPALITY == null ? null : resToComplete.NMUNICIPALITY?.Trim();
+                adr.P_NCOUNTRY = resToComplete.NCOUNTRY == null ? null : resToComplete.NCOUNTRY?.Trim();
                 adr.P_NLOCAL = resToComplete?.NLOCAL == null ? null : resToComplete.NLOCAL.ToString();
                 adr.P_NPROVINCE = resToComplete?.NPROVINCE == null ? null : resToComplete.NPROVINCE.ToString();
                 clientBindingModel.EListAddresClient.Add(adr);
