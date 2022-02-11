@@ -23,4 +23,11 @@ namespace WSGClienteCM.Models
             correoUsuarios = new List<EmailViewModel>();
         }
     }
+    public class RespuestaMail  {
+        public TramaRespuestaCargaMasivaResponse correos { get; set; }
+        public  List<Archivo> tramaslist { get; set; }
+        public string nroProces { get; set; }
+        public string P_NCODE { get; set; }
+        public string P_SMESSAGE { get; set; }
+    }
 }

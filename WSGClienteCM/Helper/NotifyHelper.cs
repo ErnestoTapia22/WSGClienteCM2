@@ -142,20 +142,21 @@ namespace WSGClienteCM.Helper
             return objArchivo;
         }
 
-        public async Task SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, int port, List<Archivo> tramasList = null)
+        public void SendMail(string addressFrom,  string pwdFrom, string addressTo, string subject, string body, int port, List<Archivo> tramasList = null)
         { 
             SmtpClient SmtpServer = new SmtpClient("smtp.gmail.com");
             Attachment attachment = null;
-            try {
-                using (var mail = new MailMessage())
-                {
+            try
+            {
+                   MailMessage mail = new MailMessage();
+                
                     mail.From = new MailAddress(addressFrom, "Carga Masiva - Gestor de Clientes", Encoding.UTF8);
-                    mail.To.Add(addressTo);
+                    // mail.To.Add(addressTo);
                     mail.To.Add("ernesto.tapia@materiagris.pe");
                     mail.IsBodyHtml = true;
                     mail.Subject = subject;
                     mail.Body = body;
-                   
+
 
                     foreach (Archivo archivo in tramasList)
                     {
@@ -165,17 +166,22 @@ namespace WSGClienteCM.Helper
                     }
 
                     SmtpServer.Port = port;
-                    
+
                     SmtpServer.Credentials = new System.Net.NetworkCredential(addressFrom, pwdFrom);
                     SmtpServer.EnableSsl = true;
-                    await  SmtpServer.SendMailAsync(mail);
+                    SmtpServer.Send(mail);
+                if (attachment != null) {
                     attachment.Dispose();
                 }
+                    
+                
             }
-            catch (SmtpFailedRecipientsException ex){
+            catch (SmtpException smtpEx)
+            {
                 attachment.Dispose();
-                throw ex;
+                throw smtpEx;
             }
+           
                 
         }
 

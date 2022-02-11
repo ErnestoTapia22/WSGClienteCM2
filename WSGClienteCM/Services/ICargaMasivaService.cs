@@ -8,7 +8,9 @@ namespace WSGClienteCM.Services
     {
         Task<ResponseViewModel> InitProcess();
         Task<ResponseViewModel> InsertData(List<ClientBindingModel> request);
-        Task<ResponseViewModel> SendEmails(string snroprocess);
+        Task<RespuestaMail> SendEmails(string snroprocess);
+
+        Task<string> PostRequest(string url, object postObject, string token = null);
         //hcama@mg 26.01.2021 ini 
         //TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO);
         //TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO);

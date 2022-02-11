@@ -17,6 +17,9 @@ using Microsoft.AspNetCore.Hosting;
 using System.IO;
 using WSGClienteCM.Helper;
 using AutoMapper;
+using System.Net.Mail;
+using WSGClienteCM.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WSGClienteCM.Services
 {
@@ -27,13 +30,15 @@ namespace WSGClienteCM.Services
         private readonly AppSettings _appSettings;
         private readonly IHostingEnvironment _HostEnvironment;
         private readonly IMapper _mapper;
-        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase, IOptions<AppSettings> appSettings, IHostingEnvironment HostEnvironment, IMapper mapper)
+        private EmailController _emailController;
+        public CargaMasivaService(ICargaMasivaRepository cargaMasivaRepository, IConnectionBase connectionBase, IOptions<AppSettings> appSettings, IHostingEnvironment HostEnvironment, IMapper mapper, EmailController emailController)
         {
             this._cargaMasivaRepository = cargaMasivaRepository;
             this._connectionBase = connectionBase;
             this._appSettings = appSettings.Value;
             this._HostEnvironment = HostEnvironment;
             this._mapper = mapper;
+            this._emailController = emailController;
         }
 
         public async Task<ResponseViewModel> InitProcess()
@@ -163,7 +168,16 @@ namespace WSGClienteCM.Services
 
                             }
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "2");
-                            await SendEmails(header.SNROPROCESO_CAB);
+                            RespuestaMail resp =  await SendEmails(header.SNROPROCESO_CAB);
+                            var a = _emailController.SendEmail(resp);
+                            var okResult = a as OkObjectResult;
+                            var actualConfiguration = okResult.Value as ResponseViewModel;
+                            responseViewModel.P_MESSAGE = actualConfiguration.P_MESSAGE;
+                            responseViewModel.P_NCODE = actualConfiguration.P_NCODE;
+
+
+
+
                         }
                         else {
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "3");
@@ -306,10 +320,16 @@ namespace WSGClienteCM.Services
 
         }
 
-        public async Task<ResponseViewModel> SendEmails(string snroprocess)
+        public async Task<RespuestaMail> SendEmails(string snroprocess)
+        
         {
-            ResponseViewModel _objReturn = null;
-            _objReturn = new ResponseViewModel();
+            ResponseViewModel _objReturn = new ResponseViewModel();
+
+            RespuestaMail respuestam = new RespuestaMail();
+            respuestam.correos = new TramaRespuestaCargaMasivaResponse(); 
+            respuestam.tramaslist = new List<Archivo>();
+
+          
             if (snroprocess != null || snroprocess != "")
             {
                 try
@@ -327,37 +347,34 @@ namespace WSGClienteCM.Services
 
                     if (!tramaExistosa.respuesta && (tramaExistosa.codigoRespuesta != "0"))
                     {
-                        _objReturn.P_NCODE = "1";
-                        _objReturn.P_SMESSAGE = tramaExistosa.mensajes[0];
-                        return _objReturn;
+                        respuestam.P_NCODE = "1";
+                        respuestam.P_SMESSAGE = tramaExistosa.mensajes[0];
+                      //  return _objReturn;
                     }
                     if (!tramaError.respuesta && (tramaError.codigoRespuesta != "0"))
                     {
-                        _objReturn.P_NCODE = "1";
-                        _objReturn.P_SMESSAGE = tramaError.mensajes[0];
-                        return _objReturn;
+                        respuestam.P_NCODE = "1";
+                        respuestam.P_SMESSAGE = tramaError.mensajes[0];
+                       // return _objReturn;
                     }
                     if (!correoUsuarios.respuesta && (correoUsuarios.codigoRespuesta != "0"))
                     {
-                        _objReturn.P_NCODE = "1";
-                        _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
-                        return _objReturn;
+                        respuestam.P_NCODE = "1";
+                        respuestam.P_SMESSAGE = correoUsuarios.mensajes[0];
+                       // return _objReturn;
                     }
                     if (!correoUsuarios.respuesta)
                     {
-                        _objReturn.P_NCODE = "1";
-                        _objReturn.P_SMESSAGE = correoUsuarios.mensajes[0];
-                        return _objReturn;
+                        respuestam.P_NCODE = "1";
+                        respuestam.P_SMESSAGE = correoUsuarios.mensajes[0];
+                       // return _objReturn;
                     }
 
                     string contentRootPath = _HostEnvironment.ContentRootPath;
                     string path_CuerpoCorreo = Path.Combine(contentRootPath, @"Templates\CorreoTramaCargaMasiva01.html");
                     string htmlCorreo = File.ReadAllText(path_CuerpoCorreo);
-                    string addressFrom = _appSettings.EmailFrom;
-                    string pwdFrom = _appSettings.PassWordFrom;
-
-                    string addressTo;
-                    string subject = "Detalle  Carga  Masiva - Cliente  360";
+                    
+                  
 
 
                     NotifyHelper objNotifyHelper = new NotifyHelper();
@@ -367,34 +384,31 @@ namespace WSGClienteCM.Services
 
                     if (tramaExistosa.tramaExitosa.Count > 0) {
                         tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
-                    }
-                   
+                    } 
+                    respuestam.correos = new TramaRespuestaCargaMasivaResponse();
+                    respuestam.correos = correoUsuarios;
+                    respuestam.tramaslist = new List<Archivo>();
+                    respuestam.tramaslist = tramasList;
+                    respuestam.nroProces = snroprocess;
 
-                    foreach (EmailViewModel email in correoUsuarios.correoUsuarios)
-                    {
-                        addressTo = email.P_SE_MAIL;
-                        await objNotifyHelper.SendMail(addressFrom, pwdFrom, addressTo, subject, htmlCorreo,Convert.ToInt32(_appSettings.PortEmail), tramasList);
-                    }
+                  
+                 
+                }
+                catch (SmtpException smtpEx)
+                {
 
-                    if (_objReturn == null)
-                    {
-                        return new ResponseViewModel();
-                    }
-                    _objReturn.P_NCODE = "0";
-                    _objReturn.P_SMESSAGE = "Se notificaron las tramas  con Éxito";
-
+                    respuestam.P_NCODE = "2";
+                    respuestam.P_SMESSAGE = smtpEx.Message;
+                    return respuestam;
                 }
                 catch (Exception ex)
                 {
-                    _objReturn.P_NCODE = "2";
-                    _objReturn.P_SMESSAGE = ex.Message;
-
+                    respuestam.P_NCODE = "2";
+                    respuestam.P_SMESSAGE = ex.Message;
+                    return respuestam;
                 }
-
-
-
             }
-            return _objReturn;
+            return respuestam;
 
 
         }
