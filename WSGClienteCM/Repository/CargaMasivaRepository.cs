@@ -358,7 +358,7 @@ namespace WSGClienteCM.Repository
         //hcama@mg 26.01.2021 ini 
         public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
+            var sPackageName = "PKG_BDU_CLIENTE.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             ClientBindingModel clientBindingModel;
@@ -495,7 +495,7 @@ namespace WSGClienteCM.Repository
 
         public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_ERRORES";
+            var sPackageName = "PKG_BDU_CLIENTE.SP_OBTENER_TRAMA_ENVIO_ERRORES";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             ClientBindingModel clientBindingModel;
@@ -571,7 +571,7 @@ namespace WSGClienteCM.Repository
 
         public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
         {
-            var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
+            var sPackageName = "PKG_BDU_CLIENTE.SP_OBTENER_LISTA_USUARIOS_ENVIO_TRAMA";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             EmailViewModel emailViewModel;
