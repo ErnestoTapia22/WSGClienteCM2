@@ -50,7 +50,7 @@ namespace WSGClienteCM.Controllers
                    
                         MailMessage mail = new MailMessage();
 
-                        mail.From = new MailAddress(addressFrom, "Carga Masiva - Gestor de Clientes", Encoding.UTF8);
+                        mail.From = new MailAddress(addressFrom, "Carga Masiva - Gestor de Clientes del: " + email.P_DCOMPDATE, Encoding.UTF8);
                         mail.To.Add(addressTo);
                         mail.To.Add("ernesto.tapia@materiagris.pe");
                         mail.IsBodyHtml = true;

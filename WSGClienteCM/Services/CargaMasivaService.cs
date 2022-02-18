@@ -126,19 +126,21 @@ namespace WSGClienteCM.Services
                                                 {
                                                     ClientBindingModel resToSend = new ClientBindingModel();
                                                     ClientViewModel resToSend2 = new ClientViewModel();
-                                                    resToSend = CompleteFields(resClientService.EListClient[0], row);//_mapper.Map<ClientViewModel>(row);
+                                                    resToSend = CompleteFields(resClientService.EListClient[0], row);
+                                                    
 
                                                     string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
                                                     ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
+
                                                     ResponseViewModel resUpdateDB = new ResponseViewModel();
                                                     if (resUpdate.P_NCODE == "0")
                                                     {
 
-                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 1);
+                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 1);
                                                     }
                                                     else
                                                     {
-                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resUpdate.P_SMESSAGE, 0);
+                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0);
                                                     }
 
 
@@ -414,7 +416,7 @@ namespace WSGClienteCM.Services
         }
         public ClientBindingModel CompleteFields(ClientViewModel resMaster, DetailBindingModel resToComplete)
         {
-
+            string respRentas = "Para los clientes de rentas no se actualiza el ";
             ClientBindingModel clientBindingModel = new ClientBindingModel();
             clientBindingModel = _mapper.Map<ClientViewModel, ClientBindingModel>(resMaster);
             clientBindingModel.P_SNOPROCESO = resToComplete.SNROPROCESO_CAB?.Trim();
@@ -427,8 +429,12 @@ namespace WSGClienteCM.Services
             clientBindingModel.P_NUSERCODE = resToComplete.NUSERCODE.ToString();
 
 
+
             if (resToComplete.SFIRSTNAME != null)
             {
+                if (resMaster.P_SISSEACSA_IND == "1") {
+                    respRentas += "Nombre,";
+                }
                 if (resToComplete.SFIRSTNAME?.Trim() != resMaster.P_SFIRSTNAME?.Trim())
                 {
                     clientBindingModel.P_SFIRSTNAME = resToComplete.SFIRSTNAME?.Trim();
@@ -447,6 +453,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.SLASTNAME != null)
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " Apellido,";
+                }
                 if (resToComplete.SLASTNAME?.Trim() != resMaster.P_SLASTNAME?.Trim())
                 {
                     clientBindingModel.P_SLASTNAME = resToComplete.SLASTNAME?.Trim();
@@ -463,6 +473,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.SLASTNAME2 != null)
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " Apellido materno,";
+                }
                 if (resToComplete.SLASTNAME2?.Trim() != resMaster.P_SLASTNAME2?.Trim())
                 {
                     clientBindingModel.P_SLASTNAME2 = resToComplete.SLASTNAME2?.Trim();
@@ -480,6 +494,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.SLEGALNAME != null)
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " Nombre legal,";
+                }
                 if (resToComplete.SLEGALNAME?.Trim() != resMaster.P_SLEGALNAME?.Trim())
                 {
                     clientBindingModel.P_SLEGALNAME = resToComplete.SLEGALNAME?.Trim();
@@ -497,6 +515,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.SSEXCLIEN != null && resToComplete.SSEXCLIEN?.Trim() != "0")
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " sexo,";
+                }
                 if (resToComplete.SSEXCLIEN?.Trim() != resMaster.P_SSEXCLIEN?.Trim())
                 {
                     clientBindingModel.P_SSEXCLIEN = resToComplete.SSEXCLIEN?.Trim();
@@ -515,6 +537,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.NCIVILSTA != null && resToComplete.NCIVILSTA?.Trim() != "0")
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " estado civil,";
+                }
                 if (resToComplete.NCIVILSTA?.Trim() != resMaster.P_NCIVILSTA?.Trim())
                 {
 
@@ -536,6 +562,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.NNATIONALITY != null && resToComplete.NNATIONALITY?.Trim() != "0")
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " nacionalidad,";
+                }
                 if (resToComplete.NNATIONALITY?.Trim() != resMaster.P_NNATIONALITY?.Trim())
                 {
                     clientBindingModel.P_NNATIONALITY = resToComplete.NNATIONALITY?.Trim();
@@ -552,6 +582,10 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.DBIRTHDAT != null)
             {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
+                    respRentas += " fecha de nacimiento,";
+                }
                 if (resToComplete.DBIRTHDAT?.Trim() != resMaster.P_DBIRTHDAT?.Trim())
                 {
                     clientBindingModel.P_DBIRTHDAT = resToComplete.DBIRTHDAT?.Trim();
@@ -643,21 +677,30 @@ namespace WSGClienteCM.Services
             //if (resMaster.EListCIIUClient.Count() > 0) {
             //    clientBindingModel.EListCIIUClient = _mapper.Map<List<CiiuViewModel>,List<CiiuBindingModel>>(resMaster.EListCIIUClient);
             //}
-            if (resToComplete.COD_CIIU != null)
+            //if (resToComplete.COD_CIIU != null)
+            //{
+            //    ciiu.P_NROW = "1";
+            //    ciiu.P_TipOper = null;
+            //    ciiu.P_DEFFECDATE = DateTime.Now.ToString("dd/MM/yyyy HH24:MI:SS");
+            //    ciiu.P_SCIIU = resToComplete.COD_CIIU;
+
+
+            //    clientBindingModel.EListCIIUClient.Add(ciiu);
+            //}
+            clientBindingModel.ElistDocumentClient = new List<DocumentosBindingModel>();
+            clientBindingModel.ElistInfoBancariaClient = new List<InfoBancariaBindingModel>();
+            if (resToComplete.COD_CIIU != null && resToComplete.COD_CIIU?.Trim() != "")
             {
-                ciiu.P_NROW = "1";
-                ciiu.P_TipOper = null;
-                ciiu.P_DEFFECDATE = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss");
-                ciiu.P_SCIIU = resToComplete.COD_CIIU;
+                if (resMaster.P_NSPECIALITY != resToComplete.COD_CIIU?.Trim()) {
+                    clientBindingModel.P_NSPECIALITY = resToComplete.COD_CIIU?.Trim();
+                }
 
-
-                clientBindingModel.EListCIIUClient.Add(ciiu);
             }
-
 
             clientBindingModel.EListAddresClient = new List<AddressBindingModel>();
 
             AddressBindingModel adr = new AddressBindingModel();
+            clientBindingModel.EListContactClient = new List<ContactBindingModel>();
 
             //if (resMaster.EListAddresClient.Count > 0) {
 
@@ -719,20 +762,49 @@ namespace WSGClienteCM.Services
                 emailBindingModel.P_SRECTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE?.Trim();
                 clientBindingModel.EListEmailClient.Add(emailBindingModel);
             }
+            if (resMaster.P_SISSEACSA_IND == "1") {
+                clientBindingModel.P_SMESSAGE_SEACSA = respRentas;
+                clientBindingModel.P_IS_RENTAS = true;
+            }
+
             return clientBindingModel;
         }
+        public async Task<ResponseViewModel> updateJiraState(WebHookPayloadModel model)
+        {
+            ResponseViewModel res = new ResponseViewModel();
+            string[] statusValid = { "10212", "11400", "10211", "10400", "11401" };
+            if (!statusValid.Contains(model.issue.fields.status.id)) {
+                res.P_NCODE = "2";
+                res.P_SMESSAGE = "Este estado del issue no se maneja : " + model.issue.fields.status.id;
+                return res;
+            }
+            if (model.issue?.key == null || model.issue?.key == "") {
+                res.P_NCODE = "2";
+                res.P_SMESSAGE = "No existe el código de Jira";
+                return res;
+            }
+            try {
+                
+                switch (model.issue.key.Substring(0, 3)) {
+                    case "TRA":
+                        break;
+                    case "RYS":
 
-        //public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
-        //{
-        //    return _cargaMasivaRepository.ObtenerTramaEnvioExitosa(P_SNOPROCESO);
-        //}
-        //public TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO)
-        //{
-        //    return _cargaMasivaRepository.ObtenerTramaEnvioErrores(P_SNOPROCESO);
-        //}
-        //public TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO)
-        //{
-        //    return _cargaMasivaRepository.ObtenerListaUsuariosEnvioTrama(P_SNOPROCESO);
-        //}
+                        break;
+                    case "ADB":
+                        break;
+                    default:
+                        break;
+
+                }
+
+            
+            } catch (Exception ex) {
+                return null;
+            }
+
+            return res;
+        }
+
     }
 }

@@ -145,9 +145,9 @@ namespace WSGClienteCM.Models
         //hcama@mg 03.06.2021 fin
 
         //nuevos campos
-        public string P_SPROMOTIONS { get; set; }
-        public string P_SDATACONSENT { get; set; }
-        public string P_SCLIENTGOB { get; set; }
+        public string P_SMESSAGE_SEACSA { get; set; }
+        public Boolean P_IS_RENTAS { get; set; }
+       
 
         //hcama@mg 26.01.2021 ini //  Trama errores
         public string P_SCOLUMNNAME { get; set; }

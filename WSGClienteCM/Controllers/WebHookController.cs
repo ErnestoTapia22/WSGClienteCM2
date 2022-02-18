@@ -3,16 +3,23 @@ using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 using WSGClienteCM.Models;
+using WSGClienteCM.Services;
 
 namespace WSGClienteCM.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
     public class WebHookController : Controller
+
     {
+        private readonly ICargaMasivaService _cargaMasivaService;
+        public WebHookController(ICargaMasivaService cargaMasivaService) { 
+        _cargaMasivaService = cargaMasivaService;
+        }
         [HttpPost("UpdateStatus")]
-        public IActionResult UpdStatus(WebHookPayloadModel model)
+        public async Task<IActionResult> UpdStatus(WebHookPayloadModel model)
         {
             ResponseViewModel response = new ResponseViewModel();
             try
@@ -27,6 +34,7 @@ namespace WSGClienteCM.Controllers
                 }
                 else
                 {
+                    response = await _cargaMasivaService.updateJiraState(model);
                     sw = new StreamWriter(filepath, true);
                     sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
                     sw.Flush();

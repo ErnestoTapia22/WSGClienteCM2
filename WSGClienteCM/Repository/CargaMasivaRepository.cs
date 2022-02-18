@@ -776,6 +776,8 @@ namespace WSGClienteCM.Repository
                         {
                             emailViewModel = new EmailViewModel();
                             emailViewModel.P_SE_MAIL = dr["P_SE_MAIL"].ToString();
+                            var a = dr["P_DCOMPDATE"].ToString();
+                            emailViewModel.P_DCOMPDATE = dr["P_DCOMPDATE"].ToString() != "" || dr["P_DCOMPDATE"].ToString() != null ?  ((DateTime)dr["P_DCOMPDATE"]).ToString("dd/MM/yyyy"): dr["P_DCOMPDATE"].ToString();
 
                             ListEmailViewModel.Add(emailViewModel);
                         }
@@ -813,7 +815,12 @@ namespace WSGClienteCM.Repository
         }
         //hcama@mg 26.01.2021 fin 
 
+        //public async Task<ResponseViewModel> updateState() {
 
-        //hcama@mg 26.01.2021 fin 
+           
+        
+        
+        //}
+      
     }
 }

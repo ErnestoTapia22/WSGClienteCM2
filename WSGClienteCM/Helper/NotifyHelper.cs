@@ -116,7 +116,7 @@ namespace WSGClienteCM.Helper
                 
                     htmlBodyTrama += tdi + rr.P_COD_CIIU + tdfi;                  
                     htmlBodyTrama += tdi + rr.P_COD_CUSPP + tdfi;                  
-                  //  htmlBodyTrama += tdi + rr.P_SISCLIENT_IND + tdfi;                  
+                    htmlBodyTrama += tdi + rr.P_SISCLIENT_IND + tdfi;                  
                     htmlBodyTrama += tdi + rr.P_SBAJAMAIL_IND + tdfi;                  
                     htmlBodyTrama += tdi + rr.P_SISCLIENT_GBD + tdfi;                  
                   //  htmlBodyTrama += tdi + rr.P_SPROMOTIONS + tdfi;                  

@@ -1,4 +1,6 @@
-﻿namespace WSGClienteCM.Models
+﻿using System;
+
+namespace WSGClienteCM.Models
 {
     public class EmailViewModel
     {
@@ -12,6 +14,8 @@
         public string P_SNOMUSUARIO { get; set; }
         public string P_SKEYADDRESS { get; set; }
         public string P_SINFOR { get; set; }
+    
+       
     }
 
 }
