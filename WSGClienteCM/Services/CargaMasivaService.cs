@@ -788,7 +788,7 @@ namespace WSGClienteCM.Services
                 switch (model.issue.key.Substring(0, 3)) {
                     case "TRA":
                         break;
-                        --sim es  
+                        //sim es  
                     case "RYS":
 
                         break;
