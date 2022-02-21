@@ -540,9 +540,7 @@ namespace WSGClienteCM.Repository
             EmailBindingModel emailBindingModel;
 
             List<ClientBindingModel> ListClientBindingModel = new List<ClientBindingModel>();
-            List<AddressBindingModel> ListAddressBindingModel = new List<AddressBindingModel>();
-            List<PhoneBindingModel> ListPhoneBindingModel = new List<PhoneBindingModel>();
-            List<EmailBindingModel> ListEmailBindingModel = new List<EmailBindingModel>();
+           
 
             TramaRespuestaCargaMasivaResponse response = new TramaRespuestaCargaMasivaResponse();
 
@@ -569,6 +567,9 @@ namespace WSGClienteCM.Repository
                     {
                         while (dr.Read())
                         {
+                            List<AddressBindingModel> ListAddressBindingModel = new List<AddressBindingModel>();
+                            List<PhoneBindingModel> ListPhoneBindingModel = new List<PhoneBindingModel>();
+                            List<EmailBindingModel> ListEmailBindingModel = new List<EmailBindingModel>();
                             clientBindingModel = new ClientBindingModel();
                             addressBindingModel = new AddressBindingModel();
                             phoneBindingModel = new PhoneBindingModel();

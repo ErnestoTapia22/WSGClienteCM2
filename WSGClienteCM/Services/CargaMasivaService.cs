@@ -126,24 +126,29 @@ namespace WSGClienteCM.Services
                                                 {
                                                     ClientBindingModel resToSend = new ClientBindingModel();
                                                     ClientViewModel resToSend2 = new ClientViewModel();
-                                                    resToSend = CompleteFields(resClientService.EListClient[0], row);
-                                                    
-
-                                                    string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
-                                                    ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
-
                                                     ResponseViewModel resUpdateDB = new ResponseViewModel();
-                                                    if (resUpdate.P_NCODE == "0")
+                                                    if (resClientService.EListClient.Count() > 0)
                                                     {
+                                                        resToSend = CompleteFields(resClientService.EListClient[0], row);
+                                                        string resultUpdate = await PostRequest(_appSettings.ClientService, resToSend);
+                                                        ResponseViewModel resUpdate = JsonConvert.DeserializeObject<ResponseViewModel>(resultUpdate);
 
-                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 1);
+
+                                                        if (resUpdate.P_NCODE == "0")
+                                                        {
+
+                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 1);
+                                                        }
+                                                        else
+                                                        {
+                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0);
+                                                        }
                                                     }
-                                                    else
-                                                    {
-                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0);
+                                                    else {
+
+                                                        resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "No se encontró al cliente", 0);
                                                     }
-
-
+                                                   
                                                 }
 
                                             }
