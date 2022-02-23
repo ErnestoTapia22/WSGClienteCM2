@@ -18,6 +18,7 @@ namespace WSGClienteCM.Repository
             _connectionBase = ConnectionBase;
         }
         private string Package3 = "PKG_BDU_CLIENTE_CM";
+        private string Package4 = "PKG_BDU_TICKET";
 
 
 
@@ -816,12 +817,46 @@ namespace WSGClienteCM.Repository
         }
         //hcama@mg 26.01.2021 fin 
 
-        //public async Task<ResponseViewModel> updateState() {
+        public async Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus)
+        {
 
-           
-        
-        
-        //}
-      
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            ResponseViewModel response = new ResponseViewModel();
+
+
+
+            try
+            {
+                parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, jiraCode, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_STATUS_JIRA", OracleDbType.Varchar2, jiraStatus, ParameterDirection.Input));
+
+                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+
+                P_NCODE.Size = 4000;
+                P_SMESSAGE.Size = 4000;
+
+                parameter.Add(P_NCODE);
+                parameter.Add(P_SMESSAGE);
+                
+              
+                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TICKET_WH"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                    {
+
+                        response.P_COD_ERR = P_NCODE.Value.ToString();
+                        response.P_MESSAGE = P_SMESSAGE.Value.ToString();
+
+                        dr.Close();
+                    }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return response;
+
+        }
+
     }
 }

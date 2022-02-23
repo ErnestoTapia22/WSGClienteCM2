@@ -64,8 +64,14 @@ namespace WSGClienteCM.Services
                         responseDetail = await _cargaMasivaRepository.GetByState(header.SNROPROCESO_CAB);
                         if (responseDetail.P_COD_ERR == "0" && responseDetail.ElistDetail.Count > 0)
                         {
+
                             foreach (DetailBindingModel row in responseDetail.ElistDetail)
                             {
+                                //bool exist = responseDetail.ElistDetail.Any(item => item.SIDDOC == row.SIDDOC);
+                                //if (exist)
+                                //{
+
+                                //}
                                 DetailBindingModel detailState = new DetailBindingModel();
                                 ResponseViewModel resval = new ResponseViewModel();
                                 // primera validacion tipo y numero de documento
@@ -778,6 +784,9 @@ namespace WSGClienteCM.Services
         {
             ResponseViewModel res = new ResponseViewModel();
             string[] statusValid = { "10212", "11400", "10211", "10400", "11401" };
+            string derivationArea = "";
+            string derivationDate = "";
+
             if (!statusValid.Contains(model.issue.fields.status.id)) {
                 res.P_NCODE = "2";
                 res.P_SMESSAGE = "Este estado del issue no se maneja : " + model.issue.fields.status.id;
@@ -792,21 +801,27 @@ namespace WSGClienteCM.Services
                 
                 switch (model.issue.key.Substring(0, 3)) {
                     case "TRA":
+                       
                         break;
-                        //sim es  
+                        
                     case "RYS":
-
+                        if(model.issue?.fields?.status?.id == "11400")//derivado
+                        {
+                           
+                        }
                         break;
-                    case "ADB":
-                        break;
+                    //case "ADB":
+                    //    break;
                     default:
-                        break;
+                      res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id);
+                     break;
 
                 }
 
             
             } catch (Exception ex) {
-                return null;
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
             }
 
             return res;

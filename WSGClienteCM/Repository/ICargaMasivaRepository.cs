@@ -22,5 +22,6 @@ namespace WSGClienteCM.Repository
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioErrores(string P_SNOPROCESO);
         Task<TramaRespuestaCargaMasivaResponse> ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO);
         //hcama@mg 26.01.2021 fin 
+        Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus);
     }
 }
