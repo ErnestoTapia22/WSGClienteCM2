@@ -785,7 +785,8 @@ namespace WSGClienteCM.Services
             ResponseViewModel res = new ResponseViewModel();
             string[] statusValid = { "10212", "11400", "10211", "10400", "11401" };
             string derivationArea = "";
-            string derivationDate = "";
+            string denvio = "0";
+            
 
             if (!statusValid.Contains(model.issue.fields.status.id)) {
                 res.P_NCODE = "2";
@@ -801,24 +802,31 @@ namespace WSGClienteCM.Services
                 
                 switch (model.issue.key.Substring(0, 3)) {
                     case "TRA":
-                       
+                        if (model.issue?.fields?.status?.id == "11400")//derivado
+                        {
+                            derivationArea = model.issue?.fields?.customfield_12229?.value;
+                        }
+                        else if (model.issue?.fields?.status?.id == "10211")//cerrado
+                        {
+                            denvio = "1";
+                        }
                         break;
                         
                     case "RYS":
                         if(model.issue?.fields?.status?.id == "11400")//derivado
                         {
-                           
+                            derivationArea = model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                         }
                         break;
                     //case "ADB":
                     //    break;
                     default:
-                      res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id);
+                      
                      break;
 
                 }
+                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio);
 
-            
             } catch (Exception ex) {
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;

@@ -817,7 +817,7 @@ namespace WSGClienteCM.Repository
         }
         //hcama@mg 26.01.2021 fin 
 
-        public async Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus)
+        public async Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus, string derivationArea, string denvio)
         {
 
             List<OracleParameter> parameter = new List<OracleParameter>();
@@ -829,6 +829,8 @@ namespace WSGClienteCM.Repository
             {
                 parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, jiraCode, ParameterDirection.Input));
                 parameter.Add(new OracleParameter("P_STATUS_JIRA", OracleDbType.Varchar2, jiraStatus, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DERIVATIONAREA", OracleDbType.Varchar2, derivationArea, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DENVIO", OracleDbType.Varchar2, derivationArea, ParameterDirection.Input));
 
                 OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
                 OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
@@ -845,8 +847,7 @@ namespace WSGClienteCM.Repository
 
                         response.P_COD_ERR = P_NCODE.Value.ToString();
                         response.P_MESSAGE = P_SMESSAGE.Value.ToString();
-
-                        dr.Close();
+                       
                     }
 
             }

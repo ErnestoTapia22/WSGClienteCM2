@@ -24,8 +24,8 @@ namespace WSGClienteCM.Controllers
             ResponseViewModel response = new ResponseViewModel();
             try
             {
-                string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\LogFile.txt";
-                StreamWriter sw = null;
+                //string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\LogFile.txt";
+                //StreamWriter sw = null;
                 if (model == null)
                 {
                     response.P_NCODE = "2";
@@ -35,11 +35,11 @@ namespace WSGClienteCM.Controllers
                 else
                 {
                     response = await _cargaMasivaService.updateJiraState(model);
-                    sw = new StreamWriter(filepath, true);
-                    sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
-                    sw.Flush();
-                    sw.Close();
-                    return Ok(model);
+                    //sw = new StreamWriter(filepath, true);
+                    //sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
+                    //sw.Flush();
+                    //sw.Close();
+                    return Ok(response);
                 }
 
             }
