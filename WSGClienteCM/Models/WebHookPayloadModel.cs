@@ -2,7 +2,7 @@
 
 namespace WSGClienteCM.Models
 {
-    //ini ernesto.tapia@materiagris.pe 16/02/2022
+    //ini ernesto.tapia@materiagris.pe 16/02/2022 tel 979718300 
     public class WebHookPayloadModel
     {
         public long Timestamp { get; set; }
@@ -20,7 +20,11 @@ namespace WSGClienteCM.Models
         public string summary { get; set; }
         public WebHookStatus status { get; set; }
         public Field12229 customfield_12229 { get; set; }
+        public string customfield_12314 { get; set; }
+        public string customfield_12319 { get; set; }
         public List<SubTask> subtasks { get; set; }
+        public Project project { get; set; }
+
 
 
     }
@@ -32,6 +36,10 @@ namespace WSGClienteCM.Models
     public class Field12229 :BaseWebHook
     {
         public string value { get; set; }
+    }
+    public class Project : BaseWebHook
+    {
+       
     }
 
     public class SubTask: WebHookIssue

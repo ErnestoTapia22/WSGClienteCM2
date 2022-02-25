@@ -20,6 +20,7 @@ using AutoMapper;
 using System.Net.Mail;
 using WSGClienteCM.Controllers;
 using Microsoft.AspNetCore.Mvc;
+using System.Globalization;
 
 namespace WSGClienteCM.Services
 {
@@ -786,6 +787,8 @@ namespace WSGClienteCM.Services
             string[] statusValid = { "10212", "11400", "10211", "10400", "11401" };
             string derivationArea = "";
             string denvio = "0";
+            string dateFired = "";
+           
             
 
             if (!statusValid.Contains(model.issue.fields.status.id)) {
@@ -798,25 +801,59 @@ namespace WSGClienteCM.Services
                 res.P_SMESSAGE = "No existe el código de Jira";
                 return res;
             }
+            string dateParsed = "";
+            string dates = "";
+
+           
+           
+           
+           
             try {
                 
-                switch (model.issue.key.Substring(0, 3)) {
+                switch (model.issue?.fields?.project?.key) {
                     case "TRA":
                         if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
                             derivationArea = model.issue?.fields?.customfield_12229?.value;
+                            dateFired = parseFormatDate(model.issue?.fields?.customfield_12314);
                         }
-                        else if (model.issue?.fields?.status?.id == "10211")//cerrado
+                        else if (model.issue?.fields?.status?.id == "10211" || model.issue?.fields?.status?.id == "10212")//cerrado o cancelado
                         {
                             denvio = "1";
+                            if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12319.Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
                         }
                         break;
                         
                     case "RYS":
-                        if(model.issue?.fields?.status?.id == "11400")//derivado
+                        if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
                             derivationArea = model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
-                        }
+                        } else if (model.issue?.fields?.status?.id == "10212") // cancelado
+                        {
+                            denvio = "1";
+                            if (model.issue?.fields?.customfield_12314 != null && model.issue?.fields?.customfield_12314 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12314.Substring(0,19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                        } 
+                        //else if (model.issue?.fields?.status?.id == "10211") //cerrado
+                        //{
+
+                        //    dateFired = parseFormatDate(dateParsed);
+                        //}
                         break;
                     //case "ADB":
                     //    break;
@@ -825,7 +862,7 @@ namespace WSGClienteCM.Services
                      break;
 
                 }
-                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio);
+                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired);
 
             } catch (Exception ex) {
                 res.P_COD_ERR = "2";
@@ -833,6 +870,39 @@ namespace WSGClienteCM.Services
             }
 
             return res;
+        }
+
+        private string parseFormatDate(string datestring)
+        {
+            string resulDate = "";
+
+            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" };
+            DateTime date;
+            if (datestring !=null && datestring !="")
+            {
+                try
+                {
+                    if (DateTime.TryParseExact(datestring, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+                    {
+                        resulDate = date.ToString("MM/dd/yyyy HH:mm:ss");
+                    }
+                    else
+                    {
+                        resulDate = DateTimeOffset.FromUnixTimeMilliseconds(Convert.ToInt64(datestring)).DateTime.ToString("MM/dd/yyyy HH:mm:ss");
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    resulDate = "";
+
+                    return resulDate;
+                }
+            }
+       
+           
+
+            return resulDate;
         }
 
     }
