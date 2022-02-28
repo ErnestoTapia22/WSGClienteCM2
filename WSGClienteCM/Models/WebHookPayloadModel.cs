@@ -21,6 +21,8 @@ namespace WSGClienteCM.Models
         public WebHookStatus status { get; set; }
         public Field12229 customfield_12229 { get; set; }
         public string customfield_12314 { get; set; }
+        public string customfield_12301 { get; set; }
+        public string customfield_12427 { get; set; }// cancelado tra
         public string customfield_12319 { get; set; }
         public List<SubTask> subtasks { get; set; }
         public Project project { get; set; }

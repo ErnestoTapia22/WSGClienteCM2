@@ -815,14 +815,37 @@ namespace WSGClienteCM.Services
                         if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
                             derivationArea = model.issue?.fields?.customfield_12229?.value;
-                            dateFired = parseFormatDate(model.issue?.fields?.customfield_12314);
+
+                            //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
+                            if (model.issue?.fields?.customfield_12301 != null && model.issue?.fields?.customfield_12301 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12301;//Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
                         }
-                        else if (model.issue?.fields?.status?.id == "10211" || model.issue?.fields?.status?.id == "10212")//cerrado o cancelado
+                        else if (model.issue?.fields?.status?.id == "10211" )//cerrado 
                         {
                             denvio = "1";
+
                             if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
                             {
-                                dates = model.issue?.fields?.customfield_12319.Substring(0, 19);
+                                dates = model.issue?.fields?.customfield_12319;//.Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                        } else if (model.issue?.fields?.status?.id == "10212")//cancelado
+                        { 
+                            denvio = "1";
+                            if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12427;//.Substring(0, 19);
                                 if (dates.Length > 0)
                                 {
                                     dateParsed = dates;
@@ -839,9 +862,9 @@ namespace WSGClienteCM.Services
                         } else if (model.issue?.fields?.status?.id == "10212") // cancelado
                         {
                             denvio = "1";
-                            if (model.issue?.fields?.customfield_12314 != null && model.issue?.fields?.customfield_12314 != "")
+                            if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
                             {
-                                dates = model.issue?.fields?.customfield_12314.Substring(0,19);
+                                dates = model.issue?.fields?.customfield_12427;//.Substring(0,19);
                                 if (dates.Length > 0)
                                 {
                                     dateParsed = dates;
@@ -868,7 +891,7 @@ namespace WSGClienteCM.Services
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;
             }
-
+            res.P_CAMPO = dateFired;
             return res;
         }
 
@@ -876,7 +899,7 @@ namespace WSGClienteCM.Services
         {
             string resulDate = "";
 
-            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" };
+            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" , "yyyy-MM-ddTHH:mm:ss.fffK" };
             DateTime date;
             if (datestring !=null && datestring !="")
             {
