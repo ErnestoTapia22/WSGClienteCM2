@@ -65,6 +65,9 @@ namespace WSGClienteCM.Services
                         responseDetail = await _cargaMasivaRepository.GetByState(header.SNROPROCESO_CAB);
                         if (responseDetail.P_COD_ERR == "0" && responseDetail.ElistDetail.Count > 0)
                         {
+                           
+
+
 
                             foreach (DetailBindingModel row in responseDetail.ElistDetail)
                             {
@@ -858,7 +861,21 @@ namespace WSGClienteCM.Services
                     case "RYS":
                         if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
-                            derivationArea = model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
+                            if (model.issue?.fields?.customfield_12314 != null && model.issue?.fields?.customfield_12314 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12314;//.Substring(0,19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                            if (model.issue?.fields?.customfield_12308.Count >0)
+                            {
+
+                                derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
+                            }
+
                         } else if (model.issue?.fields?.status?.id == "10212") // cancelado
                         {
                             denvio = "1";
@@ -899,7 +916,7 @@ namespace WSGClienteCM.Services
         {
             string resulDate = "";
 
-            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" , "yyyy-MM-ddTHH:mm:ss.fffK" };
+            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" , "yyyy-MM-ddTHH:mm:ss.fffK", "yyyy-MM-ddTHH:mm:ssK" };
             DateTime date;
             if (datestring !=null && datestring !="")
             {

@@ -338,6 +338,9 @@ namespace WSGClienteCM.Repository
                 parameters.Add(new OracleParameter("P_SPROTEG_DATOS_IND", OracleDbType.Char, item.SPROTEG_DATOS_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SBAJAMAIL_IND", OracleDbType.Char, item.SBAJAMAIL_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SISCLIENT_GBD", OracleDbType.Char, item.SISCLIENT_GBD, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NNUMREG", OracleDbType.Decimal, item.NNUMREG, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NNROPROCESO_DET", OracleDbType.Decimal, item.NNROPROCESO_DET, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SNROPROCESO_CAB", OracleDbType.Varchar2, item.SNROPROCESO_CAB, ParameterDirection.Input));
 
                 parameters.Add(P_MESSAGE);
                 parameters.Add(P_COD_ERR);
