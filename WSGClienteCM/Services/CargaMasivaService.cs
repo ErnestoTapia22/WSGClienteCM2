@@ -816,6 +816,7 @@ namespace WSGClienteCM.Services
                         else if (model.issue?.fields?.status?.id == "10211" )//cerrado 
                         {
                             denvio = "1";
+                            model.issue.fields.status.id = "12001";
 
                             if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
                             {
