@@ -785,6 +785,7 @@ namespace WSGClienteCM.Services
             string derivationArea = "";
             string denvio = "0";
             string dateFired = "";
+            string attendedDate = "0";
 
 
 
@@ -802,10 +803,6 @@ namespace WSGClienteCM.Services
             }
             string dateParsed = "";
             string dates = "";
-
-
-
-
 
             try
             {
@@ -856,6 +853,19 @@ namespace WSGClienteCM.Services
                             }
                             dateFired = parseFormatDate(dateParsed);
                         }
+                        else if (model.issue?.fields?.status?.id == "11401")//atendido
+                        {
+                            attendedDate = "1";
+                            if (model.issue?.fields?.customfield_12315 != null && model.issue?.fields?.customfield_12315 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12315;//.Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                        }
                         break;
 
                     case "RYS":
@@ -872,12 +882,24 @@ namespace WSGClienteCM.Services
                             dateFired = parseFormatDate(dateParsed);
                             if (model.issue?.fields?.customfield_12308.Count > 0)
                             {
-
                                 derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                             }
 
                         }
                         else if (model.issue?.fields?.status?.id == "10212") // cancelado
+                        {
+                            denvio = "1";
+                            if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12427;//.Substring(0,19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                        }
+                        else if (model.issue?.fields?.status?.id == "11401") // atendido
                         {
                             denvio = "1";
                             if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
@@ -897,13 +919,28 @@ namespace WSGClienteCM.Services
                         //}
                         break;
                     //case "ADB":
-                    //    break;
+                    //if (model.issue?.fields?.status?.id == "11400")//derivado
+                    //{
+                    //    derivationArea = model.issue?.fields?.customfield_12229?.value;
+
+                    //    //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
+                    //    if (model.issue?.fields?.customfield_12301 != null && model.issue?.fields?.customfield_12301 != "")
+                    //    {
+                    //        dates = model.issue?.fields?.customfield_12301;//Substring(0, 19);
+                    //        if (dates.Length > 0)
+                    //        {
+                    //            dateParsed = dates;
+                    //        }
+                    //    }
+                    //    dateFired = parseFormatDate(dateParsed);
+                    //}
+                    //break;
                     default:
 
                         break;
 
                 }
-                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired);
+                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
 
             }
             catch (Exception ex)

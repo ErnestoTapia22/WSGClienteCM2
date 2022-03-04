@@ -202,7 +202,7 @@ namespace WSGClienteCM.Repository
 
             try
             {
-              
+
                 OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
                 P_SMESSAGE.Size = 4000;
                 OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
@@ -359,22 +359,23 @@ namespace WSGClienteCM.Repository
 
 
 
-             
 
-            }catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;
-               
+
 
             }
             return res;
-            }
+        }
 
 
-             
 
-       
+
+
         public async Task<ResponseViewModel> SaveStateRow(DetailBindingModel item)
         {
 
@@ -431,7 +432,7 @@ namespace WSGClienteCM.Repository
                 parameters.Add(new OracleParameter("P_SPROTEG_DATOS_IND", OracleDbType.Varchar2, item.SPROTEG_DATOS_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SBAJAMAIL_IND", OracleDbType.Varchar2, item.SBAJAMAIL_IND, ParameterDirection.Input));
                 parameters.Add(new OracleParameter("P_SISCLIENT_GBD", OracleDbType.Varchar2, item.SISCLIENT_GBD, ParameterDirection.Input));
-               
+
 
                 parameters.Add(P_COD_INSERTED);
                 parameters.Add(P_MESSAGE);
@@ -447,7 +448,8 @@ namespace WSGClienteCM.Repository
 
 
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;
                 res.P_NIDCM = "0";
@@ -456,34 +458,34 @@ namespace WSGClienteCM.Repository
             }
             return res;
 
-           
+
         }
-        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value,int state)
+        public async Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state)
         {
             ResponseViewModel res = new ResponseViewModel();
             try
             {
-               
-               
-                    OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
-                    P_MESSAGE.Size = 4000;
-                    OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
-                    List<OracleParameter> parameters = new List<OracleParameter>();
 
-                    parameters.Add(new OracleParameter("P_ID", OracleDbType.Int32, nid, ParameterDirection.Input));
-                    parameters.Add(new OracleParameter("P_VALUE", OracleDbType.Varchar2, value, ParameterDirection.Input));
-                    parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
 
-                    parameters.Add(P_MESSAGE);
-                    parameters.Add(P_COD_ERR);
+                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                P_MESSAGE.Size = 4000;
+                OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                List<OracleParameter> parameters = new List<OracleParameter>();
 
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "UPD_STATE_RESPONSE"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
-                    {
-                            res.P_COD_ERR = P_COD_ERR.Value.ToString();
-                            res.P_MESSAGE = P_MESSAGE.Value.ToString();
-                    }
+                parameters.Add(new OracleParameter("P_ID", OracleDbType.Int32, nid, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_VALUE", OracleDbType.Varchar2, value, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_STATE", OracleDbType.Varchar2, state, ParameterDirection.Input));
 
-                
+                parameters.Add(P_MESSAGE);
+                parameters.Add(P_COD_ERR);
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package3, "UPD_STATE_RESPONSE"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+                    res.P_COD_ERR = P_COD_ERR.Value.ToString();
+                    res.P_MESSAGE = P_MESSAGE.Value.ToString();
+                }
+
+
             }
             catch (Exception ex)
             {
@@ -535,7 +537,7 @@ namespace WSGClienteCM.Repository
         //hcama@mg 26.01.2021 ini 
         public async Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioExitosa(string P_SNOPROCESO)
         {
-           // var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
+            // var sPackageName = "PKG_BDU_CLIENTE_CM_HCAMA.SP_OBTENER_TRAMA_ENVIO_EXITOSA";
             List<OracleParameter> parameter = new List<OracleParameter>();
 
             ClientBindingModel clientBindingModel;
@@ -544,7 +546,7 @@ namespace WSGClienteCM.Repository
             EmailBindingModel emailBindingModel;
 
             List<ClientBindingModel> ListClientBindingModel = new List<ClientBindingModel>();
-           
+
 
             TramaRespuestaCargaMasivaResponse response = new TramaRespuestaCargaMasivaResponse();
 
@@ -782,7 +784,7 @@ namespace WSGClienteCM.Repository
                             emailViewModel = new EmailViewModel();
                             emailViewModel.P_SE_MAIL = dr["P_SE_MAIL"].ToString();
                             var a = dr["P_DCOMPDATE"].ToString();
-                            emailViewModel.P_DCOMPDATE = dr["P_DCOMPDATE"].ToString() != "" || dr["P_DCOMPDATE"].ToString() != null ?  ((DateTime)dr["P_DCOMPDATE"]).ToString("dd/MM/yyyy"): dr["P_DCOMPDATE"].ToString();
+                            emailViewModel.P_DCOMPDATE = dr["P_DCOMPDATE"].ToString() != "" || dr["P_DCOMPDATE"].ToString() != null ? ((DateTime)dr["P_DCOMPDATE"]).ToString("dd/MM/yyyy") : dr["P_DCOMPDATE"].ToString();
 
                             ListEmailViewModel.Add(emailViewModel);
                         }
@@ -820,13 +822,11 @@ namespace WSGClienteCM.Repository
         }
         //hcama@mg 26.01.2021 fin 
 
-        public async Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus, string derivationArea, string denvio, string dateFired)
+        public async Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus, string derivationArea, string denvio, string dateFired, string attendedDate)
         {
 
             List<OracleParameter> parameter = new List<OracleParameter>();
             ResponseViewModel response = new ResponseViewModel();
-
-
 
             try
             {
@@ -835,6 +835,7 @@ namespace WSGClienteCM.Repository
                 parameter.Add(new OracleParameter("P_DERIVATIONAREA", OracleDbType.Varchar2, derivationArea, ParameterDirection.Input));
                 parameter.Add(new OracleParameter("P_DENVIO", OracleDbType.Varchar2, denvio, ParameterDirection.Input));
                 parameter.Add(new OracleParameter("P_DDATE", OracleDbType.Varchar2, dateFired, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DATTENDEDDATE", OracleDbType.Varchar2, attendedDate, ParameterDirection.Input));
 
                 OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
                 OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
@@ -844,15 +845,15 @@ namespace WSGClienteCM.Repository
 
                 parameter.Add(P_NCODE);
                 parameter.Add(P_SMESSAGE);
-                
-              
-                    using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TICKET_WH"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
-                    {
-                        
-                        response.P_COD_ERR = P_NCODE.Value.ToString();
-                        response.P_MESSAGE = P_SMESSAGE.Value.ToString();
-                       
-                    }
+
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TICKET_WH"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+
+                    response.P_COD_ERR = P_NCODE.Value.ToString();
+                    response.P_MESSAGE = P_SMESSAGE.Value.ToString();
+
+                }
 
             }
             catch (Exception ex)
