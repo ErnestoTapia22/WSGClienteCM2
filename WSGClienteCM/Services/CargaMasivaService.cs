@@ -65,17 +65,10 @@ namespace WSGClienteCM.Services
                         responseDetail = await _cargaMasivaRepository.GetByState(header.SNROPROCESO_CAB);
                         if (responseDetail.P_COD_ERR == "0" && responseDetail.ElistDetail.Count > 0)
                         {
-                           
-
-
-
+                         
                             foreach (DetailBindingModel row in responseDetail.ElistDetail)
                             {
-                                //bool exist = responseDetail.ElistDetail.Any(item => item.SIDDOC == row.SIDDOC);
-                                //if (exist)
-                                //{
-
-                                //}
+                            
                                 DetailBindingModel detailState = new DetailBindingModel();
                                 ResponseViewModel resval = new ResponseViewModel();
                                 // primera validacion tipo y numero de documento
@@ -125,7 +118,6 @@ namespace WSGClienteCM.Services
                                         };
                                         try
                                         {
-
                                             string result = await PostRequest(_appSettings.ClientService, postRequest);
                                             ResponseViewModel resClientService = new ResponseViewModel();
                                             resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
@@ -175,13 +167,8 @@ namespace WSGClienteCM.Services
                                             continue;
 
                                         }
-
-
-
                                     }
                                 }
-
-
 
                             }
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "2");
@@ -191,10 +178,6 @@ namespace WSGClienteCM.Services
                             var actualConfiguration = okResult.Value as ResponseViewModel;
                             responseViewModel.P_MESSAGE = actualConfiguration.P_MESSAGE;
                             responseViewModel.P_NCODE = actualConfiguration.P_NCODE;
-
-
-
-
                         }
                         else {
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "3");
