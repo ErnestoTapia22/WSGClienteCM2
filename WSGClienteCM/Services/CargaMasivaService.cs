@@ -1,26 +1,26 @@
-﻿using System;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Threading.Tasks;
-using WSGClienteCM.Connection;
-using WSGClienteCM.Models;
-using WSGClienteCM.Repository;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using Newtonsoft.Json;
-using System.Text;
-using Microsoft.Extensions.Options;
-using WSGClienteCM.Utils;
-using Microsoft.AspNetCore.Hosting;
-using System.IO;
-using WSGClienteCM.Helper;
-using AutoMapper;
 using System.Net.Mail;
+using System.Text;
+using System.Threading.Tasks;
+using WSGClienteCM.Connection;
 using WSGClienteCM.Controllers;
-using Microsoft.AspNetCore.Mvc;
-using System.Globalization;
+using WSGClienteCM.Helper;
+using WSGClienteCM.Models;
+using WSGClienteCM.Repository;
+using WSGClienteCM.Utils;
 
 namespace WSGClienteCM.Services
 {
@@ -44,16 +44,16 @@ namespace WSGClienteCM.Services
 
         public async Task<ResponseViewModel> InitProcess()
         {
-         
+
             ResponseViewModel responseViewModel = new ResponseViewModel();
             responseViewModel.EListErrores = new List<ListViewErrores>();
-         
+
 
             try
             {
                 // selecciona registros con estado 0
                 responseViewModel = await _cargaMasivaRepository.GetHeadersByState("0");
-               
+
                 if (responseViewModel.P_COD_ERR == "0" && responseViewModel.ElistHeaders.Count > 0)
                 {
                     List<string> processCodeToUpdate = new List<string>();
@@ -65,10 +65,10 @@ namespace WSGClienteCM.Services
                         responseDetail = await _cargaMasivaRepository.GetByState(header.SNROPROCESO_CAB);
                         if (responseDetail.P_COD_ERR == "0" && responseDetail.ElistDetail.Count > 0)
                         {
-                         
+
                             foreach (DetailBindingModel row in responseDetail.ElistDetail)
                             {
-                            
+
                                 DetailBindingModel detailState = new DetailBindingModel();
                                 ResponseViewModel resval = new ResponseViewModel();
                                 // primera validacion tipo y numero de documento
@@ -123,7 +123,7 @@ namespace WSGClienteCM.Services
                                             resClientService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
                                             if (resClientService != null)
                                             {
-                                                
+
                                                 if (resClientService.P_NCODE == "0")
                                                 {
                                                     ClientBindingModel resToSend = new ClientBindingModel();
@@ -146,11 +146,12 @@ namespace WSGClienteCM.Services
                                                             resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0);
                                                         }
                                                     }
-                                                    else {
+                                                    else
+                                                    {
 
                                                         resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "No se encontró al cliente", 0);
                                                     }
-                                                   
+
                                                 }
 
                                             }
@@ -172,35 +173,37 @@ namespace WSGClienteCM.Services
 
                             }
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "2");
-                            RespuestaMail resp =  await SendEmails(header.SNROPROCESO_CAB);
+                            RespuestaMail resp = await SendEmails(header.SNROPROCESO_CAB);
                             var a = _emailController.SendEmail(resp);
                             var okResult = a as OkObjectResult;
                             var actualConfiguration = okResult.Value as ResponseViewModel;
                             responseViewModel.P_MESSAGE = actualConfiguration.P_MESSAGE;
                             responseViewModel.P_NCODE = actualConfiguration.P_NCODE;
                         }
-                        else {
+                        else
+                        {
                             await _cargaMasivaRepository.UpdateStateHeader(new List<string> { header.SNROPROCESO_CAB }, "3");
                         }
-                        
+
 
                     }
 
                 }
-                else {
+                else
+                {
 
                     if (responseViewModel.P_COD_ERR == "0")
                     {
                         responseViewModel.P_MESSAGE = "No hay registros para procesar";
                     }
-                    
+
                 }
 
             }
             catch (Exception ex)
             {
                 //await _cargaMasivaRepository.UpdateStateHeader(processCodeToUpdate, "-1", DataConnection, trx);
-               
+
                 responseViewModel.P_COD_ERR = "0";
                 responseViewModel.P_MESSAGE = ex.Message;
 
@@ -208,7 +211,7 @@ namespace WSGClienteCM.Services
 
             return responseViewModel;
         }
-       
+
         public async Task<ResponseViewModel> InsertData(List<ClientBindingModel> request)
         {
             string processId = request[0].P_SNOPROCESO;
@@ -256,7 +259,10 @@ namespace WSGClienteCM.Services
             }
             catch (Exception ex)
             {
-                if (trx != null) trx.Rollback();
+                if (trx != null)
+                {
+                    trx.Rollback();
+                }
 
                 throw new WSGClienteCMException(ex.Message);
             }
@@ -321,15 +327,15 @@ namespace WSGClienteCM.Services
         }
 
         public async Task<RespuestaMail> SendEmails(string snroprocess)
-        
+
         {
             ResponseViewModel _objReturn = new ResponseViewModel();
 
             RespuestaMail respuestam = new RespuestaMail();
-            respuestam.correos = new TramaRespuestaCargaMasivaResponse(); 
+            respuestam.correos = new TramaRespuestaCargaMasivaResponse();
             respuestam.tramaslist = new List<Archivo>();
 
-          
+
             if (snroprocess != null || snroprocess != "")
             {
                 try
@@ -349,50 +355,52 @@ namespace WSGClienteCM.Services
                     {
                         respuestam.P_NCODE = "1";
                         respuestam.P_SMESSAGE = tramaExistosa.mensajes[0];
-                      //  return _objReturn;
+                        //  return _objReturn;
                     }
                     if (!tramaError.respuesta && (tramaError.codigoRespuesta != "0"))
                     {
                         respuestam.P_NCODE = "1";
                         respuestam.P_SMESSAGE = tramaError.mensajes[0];
-                       // return _objReturn;
+                        // return _objReturn;
                     }
                     if (!correoUsuarios.respuesta && (correoUsuarios.codigoRespuesta != "0"))
                     {
                         respuestam.P_NCODE = "1";
                         respuestam.P_SMESSAGE = correoUsuarios.mensajes[0];
-                       // return _objReturn;
+                        // return _objReturn;
                     }
                     if (!correoUsuarios.respuesta)
                     {
                         respuestam.P_NCODE = "1";
                         respuestam.P_SMESSAGE = correoUsuarios.mensajes[0];
-                       // return _objReturn;
+                        // return _objReturn;
                     }
 
                     string contentRootPath = _HostEnvironment.ContentRootPath;
                     string path_CuerpoCorreo = Path.Combine(contentRootPath, @"Templates\CorreoTramaCargaMasiva01.html");
                     string htmlCorreo = File.ReadAllText(path_CuerpoCorreo);
-                    
-                  
+
+
 
 
                     NotifyHelper objNotifyHelper = new NotifyHelper();
-                    if (tramaError.tramaErrores.Count > 0) {
+                    if (tramaError.tramaErrores.Count > 0)
+                    {
                         tramasList.Add(objNotifyHelper.ComposeExcelErrores(contentRootPath, tramaError.tramaErrores));
                     }
 
-                    if (tramaExistosa.tramaExitosa.Count > 0) {
+                    if (tramaExistosa.tramaExitosa.Count > 0)
+                    {
                         tramasList.Add(objNotifyHelper.ComposeExcelExitoso(contentRootPath, tramaExistosa.tramaExitosa));
-                    } 
+                    }
                     respuestam.correos = new TramaRespuestaCargaMasivaResponse();
                     respuestam.correos = correoUsuarios;
                     respuestam.tramaslist = new List<Archivo>();
                     respuestam.tramaslist = tramasList;
                     respuestam.nroProces = snroprocess;
 
-                  
-                 
+
+
                 }
                 catch (SmtpException smtpEx)
                 {
@@ -430,7 +438,8 @@ namespace WSGClienteCM.Services
 
             if (resToComplete.SFIRSTNAME != null)
             {
-                if (resMaster.P_SISSEACSA_IND == "1") {
+                if (resMaster.P_SISSEACSA_IND == "1")
+                {
                     respRentas += "Nombre,";
                 }
                 if (resToComplete.SFIRSTNAME?.Trim() != resMaster.P_SFIRSTNAME?.Trim())
@@ -689,7 +698,8 @@ namespace WSGClienteCM.Services
             clientBindingModel.ElistInfoBancariaClient = new List<InfoBancariaBindingModel>();
             if (resToComplete.COD_CIIU != null && resToComplete.COD_CIIU?.Trim() != "")
             {
-                if (resMaster.P_NSPECIALITY != resToComplete.COD_CIIU?.Trim()) {
+                if (resMaster.P_NSPECIALITY != resToComplete.COD_CIIU?.Trim())
+                {
                     clientBindingModel.P_NSPECIALITY = resToComplete.COD_CIIU?.Trim();
                 }
 
@@ -760,7 +770,8 @@ namespace WSGClienteCM.Services
                 emailBindingModel.P_SRECTYPE = resToComplete.SEMAILTYPE == null ? null : resToComplete.SEMAILTYPE?.Trim();
                 clientBindingModel.EListEmailClient.Add(emailBindingModel);
             }
-            if (resMaster.P_SISSEACSA_IND == "1") {
+            if (resMaster.P_SISSEACSA_IND == "1")
+            {
                 clientBindingModel.P_SMESSAGE_SEACSA = respRentas;
                 clientBindingModel.P_IS_RENTAS = true;
             }
@@ -774,15 +785,17 @@ namespace WSGClienteCM.Services
             string derivationArea = "";
             string denvio = "0";
             string dateFired = "";
-           
-            
 
-            if (!statusValid.Contains(model.issue.fields.status.id)) {
+
+
+            if (!statusValid.Contains(model.issue.fields.status.id))
+            {
                 res.P_NCODE = "2";
                 res.P_SMESSAGE = "Este estado del issue no se maneja : " + model.issue.fields.status.id;
                 return res;
             }
-            if (model.issue?.key == null || model.issue?.key == "") {
+            if (model.issue?.key == null || model.issue?.key == "")
+            {
                 res.P_NCODE = "2";
                 res.P_SMESSAGE = "No existe el código de Jira";
                 return res;
@@ -790,13 +803,15 @@ namespace WSGClienteCM.Services
             string dateParsed = "";
             string dates = "";
 
-           
-           
-           
-           
-            try {
-                
-                switch (model.issue?.fields?.project?.key) {
+
+
+
+
+            try
+            {
+
+                switch (model.issue?.fields?.project?.key)
+                {
                     case "TRA":
                         if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
@@ -813,7 +828,7 @@ namespace WSGClienteCM.Services
                             }
                             dateFired = parseFormatDate(dateParsed);
                         }
-                        else if (model.issue?.fields?.status?.id == "10211" )//cerrado 
+                        else if (model.issue?.fields?.status?.id == "10211")//cerrado 
                         {
                             denvio = "1";
                             model.issue.fields.status.id = "12001";
@@ -827,8 +842,9 @@ namespace WSGClienteCM.Services
                                 }
                             }
                             dateFired = parseFormatDate(dateParsed);
-                        } else if (model.issue?.fields?.status?.id == "10212")//cancelado
-                        { 
+                        }
+                        else if (model.issue?.fields?.status?.id == "10212")//cancelado
+                        {
                             denvio = "1";
                             if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
                             {
@@ -841,7 +857,7 @@ namespace WSGClienteCM.Services
                             dateFired = parseFormatDate(dateParsed);
                         }
                         break;
-                        
+
                     case "RYS":
                         if (model.issue?.fields?.status?.id == "11400")//derivado
                         {
@@ -854,13 +870,14 @@ namespace WSGClienteCM.Services
                                 }
                             }
                             dateFired = parseFormatDate(dateParsed);
-                            if (model.issue?.fields?.customfield_12308.Count >0)
+                            if (model.issue?.fields?.customfield_12308.Count > 0)
                             {
 
                                 derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                             }
 
-                        } else if (model.issue?.fields?.status?.id == "10212") // cancelado
+                        }
+                        else if (model.issue?.fields?.status?.id == "10212") // cancelado
                         {
                             denvio = "1";
                             if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
@@ -872,7 +889,7 @@ namespace WSGClienteCM.Services
                                 }
                             }
                             dateFired = parseFormatDate(dateParsed);
-                        } 
+                        }
                         //else if (model.issue?.fields?.status?.id == "10211") //cerrado
                         //{
 
@@ -882,13 +899,15 @@ namespace WSGClienteCM.Services
                     //case "ADB":
                     //    break;
                     default:
-                      
-                     break;
+
+                        break;
 
                 }
                 res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired);
 
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 res.P_COD_ERR = "2";
                 res.P_MESSAGE = ex.Message;
             }
@@ -900,13 +919,12 @@ namespace WSGClienteCM.Services
         {
             string resulDate = "";
 
-            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt" , "yyyy-MM-ddTHH:mm:ss" , "yyyy-MM-ddTHH:mm:ss.fffK", "yyyy-MM-ddTHH:mm:ssK" };
-            DateTime date;
-            if (datestring !=null && datestring !="")
+            string[] allowedFormats = { "dd/MM/yyyy", "d/M/yyyy", "d/M/yyyy hh:mm:ss tt", "dd/MM/yyyy hh:mm:ss tt", "MM/dd/yyyy hh:mm:ss tt", "yyyy-MM-ddTHH:mm:ss", "yyyy-MM-ddTHH:mm:ss.fffK", "yyyy-MM-ddTHH:mm:ssK" };
+            if (datestring != null && datestring != "")
             {
                 try
                 {
-                    if (DateTime.TryParseExact(datestring, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date))
+                    if (DateTime.TryParseExact(datestring, allowedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
                     {
                         resulDate = date.ToString("MM/dd/yyyy HH:mm:ss");
                     }
@@ -923,8 +941,8 @@ namespace WSGClienteCM.Services
                     return resulDate;
                 }
             }
-       
-           
+
+
 
             return resulDate;
         }

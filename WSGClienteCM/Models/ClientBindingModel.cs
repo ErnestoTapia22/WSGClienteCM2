@@ -109,7 +109,7 @@ namespace WSGClienteCM.Models
         public string CHECKINFOEXT { get; set; }
         public string CHECKOPCMODF { get; set; }
 
-       
+
 
 
 
@@ -147,7 +147,7 @@ namespace WSGClienteCM.Models
         //nuevos campos
         public string P_SMESSAGE_SEACSA { get; set; }
         public Boolean P_IS_RENTAS { get; set; }
-       
+
 
         //hcama@mg 26.01.2021 ini //  Trama errores
         public string P_SCOLUMNNAME { get; set; }
