@@ -86,6 +86,28 @@ namespace WSGClienteCM.Controllers
 
         }
 
+        [HttpPost("Migration")]
+        public async Task<IActionResult> Migration()
+        {
+            ResponseViewModel response = new ResponseViewModel();
+            try
+            {
+
+                response = await _cargaMasivaService.FillWorkTable();
+               
+               return Ok(response);
+              
+
+            }
+            catch (Exception ex)
+            {
+                response.P_COD_ERR = "2";
+                response.P_MESSAGE = ex.Message;
+                return Ok(response);
+            }
+
+        }
+
 
     }
 }

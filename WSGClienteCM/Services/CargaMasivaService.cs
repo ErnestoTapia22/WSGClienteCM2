@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using RestSharp;
+using RestSharp.Authenticators;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -12,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Text;
 using System.Threading.Tasks;
@@ -983,6 +986,115 @@ namespace WSGClienteCM.Services
 
             return resulDate;
         }
+        public async Task<ResponseViewModel> FillWorkTable()
+        {
+            ResponseViewModel res = new ResponseViewModel();
+            ResponseViewModel res360 = new ResponseViewModel();
+            string url = "https://api-stg.soporte.protectasecuritycloud.pe";
+           
+            try
+            {
+                
+                res360 = await _cargaMasivaRepository.GetTickets360();
+                string token = getTokenAWS();
+                foreach (TicketModel item in res360.Tickets)
+                {
+                    GetResponse result = await GetRequest(url, "/jira/v1/issues?limit=50&offset=0&jql=(project=TRA) AND key=" + item.SCODE_JIRA, token);
+                    string json = result.result;
+
+                    List<WebHookResponseModel> resbh = JsonConvert.DeserializeObject<List<WebHookResponseModel>>(json);
+                    res.P_SCOD_CLIENT = resbh.ToString();
+
+                }
+               
+                
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+                return res;
+            }
+            return res;
+        }
+
+        private string getTokenAWS()
+        {
+            Token token = null;
+            try
+            {
+                RestClient client = new RestClient("https://nntp-user-pool-stg.auth.us-east-1.amazoncognito.com/");
+                RestRequest request = new RestRequest("oauth2/token", Method.POST);
+                //request.AddHeader("cache-control", "no-cache");
+                request.AddHeader("Content-Type", "application/x-www-form-urlencoded");
+                request.AddHeader("Accept", "application/json");
+
+                request.AddParameter("grant_type", "client_credentials");
+                //request.AddParameter("client_id", type == "SGC" ? AppSettings.GetUserName_SGC : AppSettings.GetUserName_360, ParameterType.RequestBody);
+                //request.AddParameter("client_secret", type == "SGC" ? AppSettings.GetPassword_SGC : AppSettings.GetPassword_360, ParameterType.RequestBody);
+                request.AddParameter("scope", "https://api-stg.soporte.protectasecuritycloud.pe/jira_basic");
+
+                client.Authenticator = new HttpBasicAuthenticator("5rj15ua9dcg85tv19dhj7anibk", "1vcdqe4b2aeoegoclh8bjle4ki8bqk2pmlrf58tod5bajes4mr8r");
+
+                IRestResponse response = client.Execute(request);
+                var content = response.Content;
+                token = System.Text.Json.JsonSerializer.Deserialize<Token>(content);
+                //return token.access_token;
+            }
+
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return token.access_token;
+        }
+        public async Task<GetResponse> GetRequest(string baseUrl, string url, string token = null, int tipo = 1)
+        {
+            GetResponse result = new GetResponse();
+            try
+            {
+
+                UriBuilder builder = new UriBuilder(baseUrl + url);
+                string cadena = builder.Uri.ToString();
+                HttpClientHandler handler = new HttpClientHandler();
+                handler.UseDefaultCredentials = true;
+
+
+                using (var client = new HttpClient(handler))
+                {
+                    client.DefaultRequestHeaders.Clear();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                    client.DefaultRequestHeaders.Add("Accept", "*/*");
+
+                    ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 |
+                                      SecurityProtocolType.Tls11 |
+                                      SecurityProtocolType.Tls;
+                    HttpResponseMessage response = await client.GetAsync(builder.Uri);
+                    response.EnsureSuccessStatusCode();
+                    string responseBody = await response.Content.ReadAsStringAsync();
+                    result.result = response.ToString();
+                    if (tipo == 1)
+                    {
+                        result.result = response.Content.ReadAsStringAsync().Result;//JsonConvert.DeserializeObject<T>(response.Content.ReadAsStringAsync().Result);
+                    }
+                    else
+                    {
+                        result.bytes = response.Content.ReadAsByteArrayAsync().Result;
+                    }
+                    client.Dispose();
+                }
+                handler.Dispose();
+
+            }
+            catch (Exception ex)
+            {
+
+                throw ex;
+            }
+
+            return result;
+        }
+
 
     }
 }

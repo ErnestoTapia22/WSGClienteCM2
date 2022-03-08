@@ -19,6 +19,7 @@ namespace WSGClienteCM.Repository
         }
         private string Package3 = "PKG_BDU_CLIENTE_CM";
         private string Package4 = "PKG_BDU_TICKET";
+        private string Package5 = "PKG_JIRA_MIGRATION";
 
 
 
@@ -862,6 +863,35 @@ namespace WSGClienteCM.Repository
             }
             return response;
 
+        }
+        public async Task<ResponseViewModel> GetTickets360()
+        {
+            List<TicketModel> tickets = new List<TicketModel>();
+            ResponseViewModel res = new ResponseViewModel();
+            List<OracleParameter> parameters = new List<OracleParameter>();
+
+            try
+            {
+
+               
+                OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
+                parameters.Add(P_TABLA);
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package5, "SP_GET_TICKETS_360"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+
+                    tickets = dr.ReadRowsList<TicketModel>();
+
+                }
+               
+                res.Tickets = tickets;
+
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+            }
+            return res;
         }
 
     }

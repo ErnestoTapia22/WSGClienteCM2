@@ -18,6 +18,7 @@ namespace WSGClienteCM.Models
         public List<ClientViewModel> EListClient { get; set; }
         public List<ListViewErrores> EListErrores { get; set; }
         public List<DetailBindingModel> ElistDetail { get; set; }
+        public List<TicketModel> Tickets { get; set; }
         public List<HeaderBindingModel> ElistHeaders { get; set; }
         public Object Data { get; set; }
     }
