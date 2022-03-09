@@ -1023,8 +1023,26 @@ namespace WSGClienteCM.Services
                                 Field fieldcd = new Field();
                                 fieldcd = ticketResponse.fields.Where(x => x.id == "customfield_12319").FirstOrDefault();// fecha de cierre
                                 ticket.DCLOSEDATE = parseFormatDate(fieldcd.value);
-                                Field fieldd = new Field();
-                                fieldcd = ticketResponse.fields.Where(x => x.id == "customfield_12319").FirstOrDefault();// fecha de cierre
+                                Field fielda = new Field();
+                                fielda = ticketResponse.fields.Where(x => x.id == "customfield_12229").FirstOrDefault();// area de derivacion
+                                if (fielda.value != null)
+                                {
+                                    ticket.SDERIVATIONAREA = parseFormatDate(fielda.value);
+                                }
+                                Field fielddd = new Field();
+                                fielddd = ticketResponse.fields.Where(x => x.id == "customfield_12301").FirstOrDefault();// fecha de derivación
+                                if (fielddd.value != null)
+                                {
+                                    ticket.DDERIVATIONDATE = parseFormatDate(fielda.value);
+                                }
+                                Field fieldad = new Field();
+                                fieldad = ticketResponse.fields.Where(x => x.id == "customfield_12301").FirstOrDefault();// fecha de derivación
+                                if (fieldad.value != null)
+                                {
+                                    ticket.DATTENDEDDATE = parseFormatDate(fieldad.value);
+                                }
+
+
 
 
                                 //}
