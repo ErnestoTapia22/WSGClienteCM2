@@ -1,12 +1,7 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using System;
+﻿using System;
 using System.IO;
 using System.Net.Mail;
 using System.Text;
-using WSGClienteCM.Models;
-using WSGClienteCM.Utils;
 
 namespace WSGClienteCM.Controllers
 {
