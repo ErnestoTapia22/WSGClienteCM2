@@ -22,10 +22,12 @@ namespace WSGClienteCM.Controllers
         public async Task<IActionResult> UpdStatus(WebHookPayloadModel model)
         {
             ResponseViewModel response = new ResponseViewModel();
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\LogFile.txt";
+            StreamWriter sw = null;
+            sw = new StreamWriter(filepath, true);
             try
             {
-                //string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\LogFile.txt";
-               // StreamWriter sw = null;
+             
                 if (model == null)
                 {
                     response.P_NCODE = "2";
@@ -36,11 +38,10 @@ namespace WSGClienteCM.Controllers
                 {
 
                     response = await _cargaMasivaService.updateJiraState(model);
-                    //sw = new StreamWriter(filepath, true);
+                   
                     //sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
-                    //sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
-                    //sw.Flush();
-                    //sw.Close();
+                    sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
+                   
                     return Ok(response);
                 }
 
@@ -49,7 +50,13 @@ namespace WSGClienteCM.Controllers
             {
                 response.P_COD_ERR = "2";
                 response.P_MESSAGE = ex.Message;
+                sw.WriteLine(DateTime.Now.ToString() + ": " + ex.Message);
                 return Ok(response);
+            }
+            finally
+            {
+                sw.Flush();
+                sw.Close();
             }
 
         }
