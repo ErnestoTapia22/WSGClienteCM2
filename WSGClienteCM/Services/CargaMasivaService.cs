@@ -991,23 +991,56 @@ namespace WSGClienteCM.Services
             ResponseViewModel res = new ResponseViewModel();
             ResponseViewModel res360 = new ResponseViewModel();
             string url = "https://api-stg.soporte.protectasecuritycloud.pe";
-           
+
             try
             {
-                
+
                 res360 = await _cargaMasivaRepository.GetTickets360();
                 string token = getTokenAWS();
                 foreach (TicketModel item in res360.Tickets)
                 {
                     GetResponse result = await GetRequest(url, "/jira/v1/issues?limit=50&offset=0&jql=(project=TRA) AND key=" + item.SCODE_JIRA, token);
                     string json = result.result;
+                    TicketModel ticket = new TicketModel();
 
                     List<WebHookResponseModel> resbh = JsonConvert.DeserializeObject<List<WebHookResponseModel>>(json);
-                    res.P_SCOD_CLIENT = resbh.ToString();
+                    if (resbh.Count > 0)
+                    {
+                        WebHookResponseModel ticketResponse = resbh[0];
+                        Field field = new Field();
+                        //string[] statusValid = { "10212", "11400", "10211", "11401" };
+
+                        field = ticketResponse.fields.Where(x => x.id == "status").FirstOrDefault();
+
+                        if (field != null)
+                        {
+                            if (field.value != null)
+                            {
+
+                                //if (field.value.id == "10211")//cerrado
+                                //{
+                                ticket.NSTATE = field.value.id;
+                                Field fieldcd = new Field();
+                                fieldcd = ticketResponse.fields.Where(x => x.id == "customfield_12319").FirstOrDefault();// fecha de cierre
+                                ticket.DCLOSEDATE = parseFormatDate(fieldcd.value);
+                                Field fieldd = new Field();
+                                fieldcd = ticketResponse.fields.Where(x => x.id == "customfield_12319").FirstOrDefault();// fecha de cierre
+
+
+                                //}
+
+
+                            }
+                        }
+
+                    }
+
+
+
 
                 }
-               
-                
+
+
             }
             catch (Exception ex)
             {
