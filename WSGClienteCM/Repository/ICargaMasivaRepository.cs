@@ -24,5 +24,6 @@ namespace WSGClienteCM.Repository
         //hcama@mg 26.01.2021 fin 
         Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus, string derivationArea, string denvio, string dateFired, string attendedDate);
         Task<ResponseViewModel> GetTickets360();
+        Task<ResponseViewModel> InsertMigration(TicketModel item);
     }
 }

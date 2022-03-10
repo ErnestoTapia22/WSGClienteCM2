@@ -1009,6 +1009,10 @@ namespace WSGClienteCM.Services
                         WebHookResponseModel ticketResponse = resbh[0];
                         Field field = new Field();
                         //string[] statusValid = { "10212", "11400", "10211", "11401" };
+                        ticket.SCODE_JIRA = ticketResponse.id;
+                        ticket.SCODE_360 = item.SCODE_360;
+                        ticket.SSTATE_360 = item.SSTATE_360;
+
 
                         field = ticketResponse.fields.Where(x => x.id == "status").FirstOrDefault();
 
@@ -1016,48 +1020,44 @@ namespace WSGClienteCM.Services
                         {
                             if (field.value != null)
                             {
-
-                                //if (field.value.id == "10211")//cerrado
-                                //{
-                                ticket.NSTATE = field.value.id;
+                                ticket.SSTATE_JIRA = field.value?.name;
+                                ticket.NSTATE_JIRA = field.value?.id;
                                 Field fieldcd = new Field();
                                 fieldcd = ticketResponse.fields.Where(x => x.id == "customfield_12319").FirstOrDefault();// fecha de cierre
-                                ticket.DCLOSEDATE = parseFormatDate(fieldcd.value);
+                                if (fieldcd.value != null)
+                                {
+                                    ticket.DCLOSEDATE = fieldcd.value?.ToString("MM/dd/yyyy HH:mm:ss");//parseFormatDate(fieldcd.value);
+                                }
+
                                 Field fielda = new Field();
                                 fielda = ticketResponse.fields.Where(x => x.id == "customfield_12229").FirstOrDefault();// area de derivacion
                                 if (fielda.value != null)
                                 {
-                                    ticket.SDERIVATIONAREA = parseFormatDate(fielda.value);
+                                    ticket.SDERIVATIONAREA = fielda.value?.value;
                                 }
                                 Field fielddd = new Field();
                                 fielddd = ticketResponse.fields.Where(x => x.id == "customfield_12301").FirstOrDefault();// fecha de derivación
                                 if (fielddd.value != null)
                                 {
-                                    ticket.DDERIVATIONDATE = parseFormatDate(fielda.value);
+                                    ticket.DDERIVATIONDATE = fielddd.value?.ToString("MM/dd/yyyy HH:mm:ss");
+                                }
+                                Field fieldc = new Field();
+                                fieldc = ticketResponse.fields.Where(x => x.id == "customfield_12427").FirstOrDefault();// fecha de cancelación
+                                if (fieldc.value != null)
+                                {
+                                    ticket.DCANCELDATE = fieldc.value?.ToString("MM/dd/yyyy HH:mm:ss");
                                 }
                                 Field fieldad = new Field();
-                                fieldad = ticketResponse.fields.Where(x => x.id == "customfield_12301").FirstOrDefault();// fecha de derivación
+                                fieldad = ticketResponse.fields.Where(x => x.id == "customfield_12315").FirstOrDefault();// fecha de atencion
                                 if (fieldad.value != null)
                                 {
-                                    ticket.DATTENDEDDATE = parseFormatDate(fieldad.value);
+                                    ticket.DATTENDEDDATE = fieldad.value?.ToString("MM/dd/yyyy HH:mm:ss");
                                 }
-
-
-
-
-                                //}
-
-
+                                await _cargaMasivaRepository.InsertMigration(ticket);
                             }
                         }
-
                     }
-
-
-
-
                 }
-
 
             }
             catch (Exception ex)

@@ -873,7 +873,7 @@ namespace WSGClienteCM.Repository
             try
             {
 
-               
+
                 OracleParameter P_TABLA = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
                 parameters.Add(P_TABLA);
                 using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package5, "SP_GET_TICKETS_360"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
@@ -882,7 +882,7 @@ namespace WSGClienteCM.Repository
                     tickets = dr.ReadRowsList<TicketModel>();
 
                 }
-               
+
                 res.Tickets = tickets;
 
             }
@@ -893,6 +893,51 @@ namespace WSGClienteCM.Repository
             }
             return res;
         }
+        public async Task<ResponseViewModel> InsertMigration(TicketModel item)
+        {
 
+            ResponseViewModel res = new ResponseViewModel();
+            try
+            {
+
+
+                OracleParameter P_MESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+                P_MESSAGE.Size = 4000;
+                OracleParameter P_COD_ERR = new OracleParameter("P_COD_ERR", OracleDbType.Int32, ParameterDirection.Output);
+                List<OracleParameter> parameters = new List<OracleParameter>();
+                parameters.Add(new OracleParameter("P_SCODE_360", OracleDbType.Varchar2, item.SCODE_360, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, item.SCODE_JIRA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SSTATE_360", OracleDbType.Varchar2, item.SSTATE_360, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SSTATE_JIRA", OracleDbType.Varchar2, item.SSTATE_JIRA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_NSTATE_JIRA", OracleDbType.Varchar2, item.NSTATE_JIRA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_DCLOSEDATE", OracleDbType.Varchar2, item.DCLOSEDATE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_SDERIVATIONAREA", OracleDbType.Varchar2, item.SDERIVATIONAREA, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_DDERIVATIONDATE", OracleDbType.Varchar2, item.DDERIVATIONDATE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_DCANCELDATE", OracleDbType.Varchar2, item.DCANCELDATE, ParameterDirection.Input));
+                parameters.Add(new OracleParameter("P_DATTENDEDDATE", OracleDbType.Varchar2, item.DATTENDEDDATE, ParameterDirection.Input));
+
+
+                parameters.Add(P_MESSAGE);
+                parameters.Add(P_COD_ERR);
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package5, "INS_TICKET_MIGRATION"), parameters, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+
+                    res.P_COD_ERR = P_COD_ERR.Value.ToString();
+                    res.P_MESSAGE = P_MESSAGE.Value.ToString();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+                throw ex;
+            }
+
+            return res;
+
+        }
     }
 }

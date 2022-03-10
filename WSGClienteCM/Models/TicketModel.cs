@@ -2,7 +2,23 @@
 {
     public class TicketModel
     {
+        public string SCODE_360
+        {
+            get; set;
+        }
         public string SCODE_JIRA
+        {
+            get; set;
+        }
+        public string SSTATE_JIRA
+        {
+            get; set;
+        }
+        public string SSTATE_360
+        {
+            get; set;
+        }
+        public string NSTATE_JIRA
         {
             get; set;
         }
@@ -10,10 +26,7 @@
         {
             get; set;
         }
-        public string NSTATE
-        {
-            get; set;
-        }
+
         public string DCLOSEDATE
         {
             get; set;
@@ -30,5 +43,10 @@
         {
             get; set;
         }
+        public string DCANCELDATE
+        {
+            get; set;
+        }
+
     }
 }
