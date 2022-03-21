@@ -981,9 +981,6 @@ namespace WSGClienteCM.Services
                     return resulDate;
                 }
             }
-
-
-
             return resulDate;
         }
         public async Task<ResponseViewModel> FillWorkTable()
