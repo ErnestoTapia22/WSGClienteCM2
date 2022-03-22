@@ -911,33 +911,60 @@ namespace WSGClienteCM.Services
                                 }
                             }
                             dateFired = parseFormatDate(dateParsed);
+                        } 
+                        break;
+
+                    case "ADB":
+                        if (model.issue?.fields?.status?.id == "11400")//Derivado
+                        {
+                            model.issue.fields.status.id = "11400";
+                            derivationArea = model.issue?.fields?.customfield_12308_;
+
+                            //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
+                            if (model.issue?.fields?.customfield_12224 != null && model.issue?.fields?.customfield_12224 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12224;//Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
                         }
-                        //else if (model.issue?.fields?.status?.id == "10211") //cerrado
-                        //{
+                        else if (model.issue?.fields?.status?.id == "11401")//Atendido
+                        {
+                            denvio = "1";
+                            model.issue.fields.status.id = "12001";
 
-                        //    dateFired = parseFormatDate(dateParsed);
-                        //}
+                            if (model.issue?.fields?.customfield_12303 != null && model.issue?.fields?.customfield_12303 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12303;//.Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+
+                        }
+                        else if (model.issue?.fields?.status?.id == "10212")//Rechazado  -->  Cancelado
+                        {
+                            denvio = "1";
+                            model.issue.fields.status.id = "10212";
+
+                            if (model.issue?.fields?.customfield_12224 != null && model.issue?.fields?.customfield_12224 != "")
+                            {
+                                dates = model.issue?.fields?.customfield_12224;//.Substring(0, 19);
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                        }
                         break;
-                    //case "ADB":
-                    //if (model.issue?.fields?.status?.id == "11400")//derivado
-                    //{
-                    //    derivationArea = model.issue?.fields?.customfield_12229?.value;
-
-                    //    //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
-                    //    if (model.issue?.fields?.customfield_12301 != null && model.issue?.fields?.customfield_12301 != "")
-                    //    {
-                    //        dates = model.issue?.fields?.customfield_12301;//Substring(0, 19);
-                    //        if (dates.Length > 0)
-                    //        {
-                    //            dateParsed = dates;
-                    //        }
-                    //    }
-                    //    dateFired = parseFormatDate(dateParsed);
-                    //}
-                    //break;
                     default:
-
-                        break;
+                break;
 
                 }
                 res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);

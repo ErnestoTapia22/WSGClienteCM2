@@ -64,6 +64,19 @@ namespace WSGClienteCM.Models
         {
             get; set;
         }
+        public string customfield_12303
+        {
+            get; set;
+        }
+        public string customfield_12224
+        {
+            get; set;
+        }
+
+        public string customfield_12308_ 
+        { get; set; 
+        }
+
         public List<FieldObject> customfield_12308
         {
             get; set;
@@ -76,6 +89,8 @@ namespace WSGClienteCM.Models
         {
             get; set;
         }
+
+
 
 
 
