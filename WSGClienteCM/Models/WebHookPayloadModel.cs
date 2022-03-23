@@ -52,6 +52,10 @@ namespace WSGClienteCM.Models
         {
             get; set;
         }
+        public FieldObject customfield_11742 
+        {
+            get; set;
+        }
         public string customfield_12427
         {
             get; set;
@@ -73,11 +77,12 @@ namespace WSGClienteCM.Models
             get; set;
         }
 
-        public string customfield_12308_ 
-        { get; set; 
+        public dynamic customfield_12308 
+        { 
+            get; set; 
         }
 
-        public List<FieldObject> customfield_12308
+        public List<FieldObject> customfield_12308_
         {
             get; set;
         }

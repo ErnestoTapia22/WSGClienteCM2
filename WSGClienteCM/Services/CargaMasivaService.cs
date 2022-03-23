@@ -882,7 +882,8 @@ namespace WSGClienteCM.Services
                             dateFired = parseFormatDate(dateParsed);
                             if (model.issue?.fields?.customfield_12308.Count > 0)
                             {
-                                derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
+                                derivationArea = model.issue?.fields?.customfield_12308?[0].value;
+                                //model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                             }
 
                         }
@@ -918,9 +919,9 @@ namespace WSGClienteCM.Services
                         if (model.issue?.fields?.status?.id == "11400")//Derivado
                         {
                             model.issue.fields.status.id = "11400";
-                            derivationArea = model.issue?.fields?.customfield_12308_;
 
-                            //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
+                            derivationArea = model.issue?.fields?.customfield_12308;                        
+                            //derivationArea = model.issue?.fields?.customfield_12308?[0].value;
                             if (model.issue?.fields?.customfield_12224 != null && model.issue?.fields?.customfield_12224 != "")
                             {
                                 dates = model.issue?.fields?.customfield_12224;//Substring(0, 19);
