@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using WSGClienteCM.Connection;
 using WSGClienteCM.Models;
 
+
+
 namespace WSGClienteCM.Repository
 {
     public class CargaMasivaRepository : ICargaMasivaRepository
@@ -164,6 +166,7 @@ namespace WSGClienteCM.Repository
 
                     using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync_TRX(string.Format("{0}.{1}", Package3, "INS_UPD_CLIENT_CM_DET"), parameters, cn, trx, ConnectionBase.enuTypeDataBase.OracleVTime))
                     {
+
                         if (P_COD_ERR.Value.ToString() == "1")
                         {
                             res.P_COD_ERR = P_COD_ERR.Value.ToString();
