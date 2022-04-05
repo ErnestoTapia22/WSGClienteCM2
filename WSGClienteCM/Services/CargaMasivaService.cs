@@ -781,7 +781,7 @@ namespace WSGClienteCM.Services
         public async Task<ResponseViewModel> updateJiraState(WebHookPayloadModel model)
         {
             ResponseViewModel res = new ResponseViewModel();
-            string[] statusValid = { "10212", "11400", "10211", "10400", "11401" };
+            string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700" };
             string derivationArea = "";
             string denvio = "0";
             string dateFired = "";
