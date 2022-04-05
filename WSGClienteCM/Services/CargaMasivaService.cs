@@ -884,7 +884,7 @@ namespace WSGClienteCM.Services
                             {
                                 derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                             }
-
+                           
                         }
                         else if (model.issue?.fields?.status?.id == "10212") // cancelado
                         {
