@@ -156,6 +156,7 @@ namespace WSGClienteCM.Models
         public string P_NUSERNAME { get; set; }
 
         //hcama@mg 26.01.2021 fin
+        public string P_ORIGENDATOS { get; set; }
 
         public List<DocumentosBindingModel> ElistDocumentClient { get; set; }
         public List<InfoBancariaBindingModel> ElistInfoBancariaClient { get; set; }

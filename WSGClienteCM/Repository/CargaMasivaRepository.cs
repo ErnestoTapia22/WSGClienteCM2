@@ -159,6 +159,7 @@ namespace WSGClienteCM.Repository
                     //parameters.Add(new OracleParameter("P_SCLIENTGOB", OracleDbType.Char, item.P_SCLIENTGOB, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_SNROPROCESO", OracleDbType.Varchar2, item.P_SNOPROCESO, ParameterDirection.Input));
                     parameters.Add(new OracleParameter("P_NNUMREG", OracleDbType.Int64, item.P_NNUMREG, ParameterDirection.Input));
+                    parameters.Add(new OracleParameter("P_SORIGENDATOS", OracleDbType.Varchar2, item.P_ORIGENDATOS, ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_SSTATE", OracleDbType.Char, '0', ParameterDirection.Input));
                     //parameters.Add(new OracleParameter("P_TIPOPER", OracleDbType.Varchar2, item.P_TipOper, ParameterDirection.Input));
                     parameters.Add(P_MESSAGE);
