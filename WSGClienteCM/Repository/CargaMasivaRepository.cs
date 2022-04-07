@@ -868,5 +868,45 @@ namespace WSGClienteCM.Repository
 
         }
 
+        public async Task<ResponseViewModel> updateStateConcurrence(ResponseViewModel payload)
+        {
+
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            ResponseViewModel response = new ResponseViewModel();
+
+            try
+            {
+                parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, payload.P_CAMPO, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_STATUS_JIRA", OracleDbType.Varchar2, payload.P_SEMAIL, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DERIVATIONAREA", OracleDbType.Varchar2, payload.P_SCOD_CLIENT, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_SURL_SISTEMA", OracleDbType.Varchar2, payload.P_CAMPO, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DDATE", OracleDbType.Varchar2, payload.P_CAMPO, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_DATTENDEDDATE", OracleDbType.Varchar2, payload.P_CAMPO, ParameterDirection.Input));
+
+                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+
+                P_NCODE.Size = 4000;
+                P_SMESSAGE.Size = 4000;
+
+                parameter.Add(P_NCODE);
+                parameter.Add(P_SMESSAGE);
+
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TEST_CONCURRENCE"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+                    response.P_COD_ERR = P_NCODE.Value.ToString();
+                    response.P_MESSAGE = P_SMESSAGE.Value.ToString();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return response;
+
+        }
+
     }
 }

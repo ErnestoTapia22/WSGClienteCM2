@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -15,8 +14,9 @@ namespace WSGClienteCM.Controllers
 
     {
         private readonly ICargaMasivaService _cargaMasivaService;
-        public WebHookController(ICargaMasivaService cargaMasivaService) { 
-        _cargaMasivaService = cargaMasivaService;
+        public WebHookController(ICargaMasivaService cargaMasivaService)
+        {
+            _cargaMasivaService = cargaMasivaService;
         }
         [HttpPost("UpdateStatus")]
         public async Task<IActionResult> UpdStatus(WebHookPayloadModel model)
@@ -27,7 +27,7 @@ namespace WSGClienteCM.Controllers
             sw = new StreamWriter(filepath, true);
             try
             {
-             
+
                 if (model == null)
                 {
                     response.P_NCODE = "2";
@@ -38,10 +38,10 @@ namespace WSGClienteCM.Controllers
                 {
 
                     response = await _cargaMasivaService.updateJiraState(model);
-                   
+
                     //sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
                     sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
-                   
+
                     return Ok(response);
                 }
 
@@ -83,6 +83,25 @@ namespace WSGClienteCM.Controllers
                     return Ok(model);
                 }
 
+            }
+            catch (Exception ex)
+            {
+                response.P_COD_ERR = "2";
+                response.P_MESSAGE = ex.Message;
+                return Ok(response);
+            }
+
+        }
+
+        [HttpPost("TestConcurrence")]
+        public async Task<IActionResult> TestConcurrence(ResponseViewModel payload)
+        {
+            ResponseViewModel response = new ResponseViewModel();
+            try
+            {
+
+                response = await _cargaMasivaService.updateStateConcurrence(payload);
+                return Ok(response);
             }
             catch (Exception ex)
             {
