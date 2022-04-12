@@ -867,5 +867,41 @@ namespace WSGClienteCM.Repository
 
         }
 
+        //DEV CY 11-04-22 INI
+        public async Task<TicketState> GetTicketState(string code)
+        {
+            List <OracleParameter> parameter = new List<OracleParameter>();
+            TicketState result = new TicketState();
+
+            try
+            {
+                parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, code, ParameterDirection.Input));
+                
+                OracleParameter C_TABLE = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
+                    
+                parameter.Add(C_TABLE);
+                
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "REA_LIST_TICKET_STATE"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+                    while (dr.Read())
+                    {
+                        TicketState item = new TicketState();
+                        item.SCODE = dr["SCODE"].ToString();
+                        item.SCODE_JIRA = dr["SCODE_JIRA"].ToString();
+                        item.NSTATE = dr["NSTATE"].ToString();
+                        item.NCODE_JIRA = dr["NCODE_JIRA"].ToString();
+                        item.SDESCRIPT = dr["SDESCRIPT"].ToString();
+                        result = item;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return result;
+        }
+        //DEV CY 11-04-22 FIN
+
     }
 }
