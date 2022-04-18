@@ -15,7 +15,7 @@ namespace WSGClienteCM.Repository
         Task<ResponseViewModel> UpdateStateHeader(List<string> processCodeToUpdate, string value);
         Task<ResponseViewModel> ValidateRow(DetailBindingModel item);
         Task<ResponseViewModel> SaveStateRow(DetailBindingModel detailStateParsed);
-        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state);
+        Task<ResponseViewModel> UpdateStateResponse(int nid, string value, int state, string sorigendatos = null, string sclient = "sclient");
         Task<ResponseViewModel> GetHeadersByState(string state);
         //hcama@mg 26.01.2021 ini 
         Task<TramaRespuestaCargaMasivaResponse> ObtenerTramaEnvioExitosa(string P_SNOPROCESO);

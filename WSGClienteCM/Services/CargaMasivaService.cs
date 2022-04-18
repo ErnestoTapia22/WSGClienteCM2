@@ -139,11 +139,11 @@ namespace WSGClienteCM.Services
                                                         if (resUpdate.P_NCODE == "0")
                                                         {
 
-                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 1);
+                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 1, row.SORIGENDATOS, resClientService.EListClient[0].P_SCLIENT);
                                                         }
                                                         else
                                                         {
-                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0);
+                                                            resUpdateDB = await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), resToSend.P_IS_RENTAS ? resUpdate.P_SMESSAGE + "; " + resToSend.P_SMESSAGE_SEACSA : resUpdate.P_SMESSAGE, 0, row.SORIGENDATOS, resClientService.EListClient[0].P_SCLIENT);
                                                         }
                                                     }
                                                     else
@@ -157,7 +157,7 @@ namespace WSGClienteCM.Services
                                             }
                                             else
                                             {
-                                                await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Error al cosultar datos en WSGClienteService", 1);
+                                                await _cargaMasivaRepository.UpdateStateResponse(Convert.ToInt32(row.NNROPROCESO_DET), "Error al cosultar datos en WSGClienteService", 0);
 
                                             }
 
@@ -884,7 +884,7 @@ namespace WSGClienteCM.Services
                             {
                                 derivationArea = model.issue?.fields?.customfield_12308?[0].value;//model.issue?.fields?.subtasks[0].fields?.summary?.Substring(17, model.issue.fields.subtasks[0].fields.summary.Length - 17);
                             }
-                           
+
                         }
                         else if (model.issue?.fields?.status?.id == "10212") // cancelado
                         {

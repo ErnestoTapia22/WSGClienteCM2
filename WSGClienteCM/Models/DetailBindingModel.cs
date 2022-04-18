@@ -15,8 +15,8 @@ namespace WSGClienteCM.Models
 
         public string NIDDOC_TYPE { get; set; }
         //Client
-        public string SFIRSTNAME  { get; set; }
-        public string SLASTNAME  { get; set; }
+        public string SFIRSTNAME { get; set; }
+        public string SLASTNAME { get; set; }
         public string SLASTNAME2 { get; set; }
         public string SLEGALNAME { get; set; }
         public string SSEXCLIEN { get; set; }
@@ -29,16 +29,16 @@ namespace WSGClienteCM.Models
 
         //Address
         public string ADDRESSTYPE { get; set; }
-       
 
-       
-        
+
+
+
         public string NCOUNTRY { get; set; }
-        
+
         public string NMUNICIPALITY { get; set; }
-       
-       
-        
+
+
+
         public string STI_DIRE { get; set; }
         public string SNOM_DIRECCION { get; set; }
         public string SNUM_DIRECCION { get; set; }
@@ -52,7 +52,7 @@ namespace WSGClienteCM.Models
         public string SMANZANA { get; set; }
         public string SLOTE { get; set; }
         public string SREFERENCIA { get; set; }
-        
+
 
         //phone
 
@@ -73,7 +73,7 @@ namespace WSGClienteCM.Models
         // error
         public string P_SMESSAGE { get; set; }
         public string P_COD_ERR { get; set; }
-       
+
 
         // nuevos campos
 
@@ -81,8 +81,10 @@ namespace WSGClienteCM.Models
         public string SBAJAMAIL_IND { get; set; }
         public string SISCLIENT_GBD { get; set; }
         public decimal NNUMREG { get; set; }
-        public Int32 NLOCAL   { get; set; }
+        public Int32 NLOCAL { get; set; }
         public Int32 NPROVINCE { get; set; }
+
+        public string SORIGENDATOS { get; set; }
 
 
     }
