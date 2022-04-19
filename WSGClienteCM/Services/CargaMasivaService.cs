@@ -21,6 +21,7 @@ using WSGClienteCM.Helper;
 using WSGClienteCM.Models;
 using WSGClienteCM.Repository;
 using WSGClienteCM.Utils;
+using System.Dynamic;
 
 namespace WSGClienteCM.Services
 {
@@ -912,6 +913,25 @@ namespace WSGClienteCM.Services
                             }
                             dateFired = parseFormatDate(dateParsed);
                         }
+                        //DEV CY 11-04-22 INI
+                        else if (model.issue?.fields?.status?.id == "10700") // clasificado
+                        {
+                            dynamic respState = new ExpandoObject();
+                            respState = await _cargaMasivaRepository.GetTicketState(model.issue.key);
+                            PostRequestTicket postRequestTicket = new PostRequestTicket
+                            {
+                                Codigo = model.issue.key
+                            };
+                            if(respState.NCODE_JIRA != model.issue.fields.status.id)
+                            {
+                                string result = await PostRequest(_appSettings.TicketService, postRequestTicket);
+                                ResponseViewModel resTicketService = new ResponseViewModel();
+                                resTicketService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
+                            }
+                            
+                            //model.issue.key
+                        }
+                        //DEV CY 11-04-22 FIN
                         //else if (model.issue?.fields?.status?.id == "10211") //cerrado
                         //{
 
