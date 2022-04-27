@@ -938,24 +938,30 @@ namespace WSGClienteCM.Services
                         //    dateFired = parseFormatDate(dateParsed);
                         //}
                         break;
-                    //case "ADB":
-                    //if (model.issue?.fields?.status?.id == "11400")//derivado
-                    //{
-                    //    derivationArea = model.issue?.fields?.customfield_12229?.value;
+                    case  "TRE":
+                        if (model.issue?.fields?.status?.id == "11400")
+                        {
 
-                    //    //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
-                    //    if (model.issue?.fields?.customfield_12301 != null && model.issue?.fields?.customfield_12301 != "")
-                    //    {
-                    //        dates = model.issue?.fields?.customfield_12301;//Substring(0, 19);
-                    //        if (dates.Length > 0)
-                    //        {
-                    //            dateParsed = dates;
-                    //        }
-                    //    }
-                    //    dateFired = parseFormatDate(dateParsed);
-                    //}
-                    //break;
-                    default:
+                        }
+                        break;
+                            //case "ADB":
+                            //if (model.issue?.fields?.status?.id == "11400")//derivado
+                            //{
+                            //    derivationArea = model.issue?.fields?.customfield_12229?.value;
+
+                            //    //dateFired = parseFormatDate(model.issue?.fields?.customfield_12301);
+                            //    if (model.issue?.fields?.customfield_12301 != null && model.issue?.fields?.customfield_12301 != "")
+                            //    {
+                            //        dates = model.issue?.fields?.customfield_12301;//Substring(0, 19);
+                            //        if (dates.Length > 0)
+                            //        {
+                            //            dateParsed = dates;
+                            //        }
+                            //    }
+                            //    dateFired = parseFormatDate(dateParsed);
+                            //}
+                            //break;
+                            default:
 
                         break;
 
