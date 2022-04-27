@@ -873,17 +873,17 @@ namespace WSGClienteCM.Repository
         //DEV CY 11-04-22 INI
         public async Task<TicketState> GetTicketState(string code)
         {
-            List <OracleParameter> parameter = new List<OracleParameter>();
+            List<OracleParameter> parameter = new List<OracleParameter>();
             TicketState result = new TicketState();
 
             try
             {
                 parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, code, ParameterDirection.Input));
-                
+
                 OracleParameter C_TABLE = new OracleParameter("C_TABLE", OracleDbType.RefCursor, ParameterDirection.Output);
-                    
+
                 parameter.Add(C_TABLE);
-                
+
                 using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "REA_LIST_TICKET_STATE"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
                     while (dr.Read())
