@@ -12,6 +12,7 @@ namespace WSGClienteCM.Services
 
         Task<string> PostRequest(string url, object postObject, string token = null);
         Task<ResponseViewModel> updateJiraState(WebHookPayloadModel model);
+        Task<ResponseViewModel> updateJiraStateSGC(WebHookPayloadModel model);
         //hcama@mg 26.01.2021 ini 
         //TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioExitosa(string P_SNOPROCESO);
         //TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO);

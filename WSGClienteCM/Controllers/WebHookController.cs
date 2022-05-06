@@ -15,8 +15,9 @@ namespace WSGClienteCM.Controllers
 
     {
         private readonly ICargaMasivaService _cargaMasivaService;
-        public WebHookController(ICargaMasivaService cargaMasivaService) { 
-        _cargaMasivaService = cargaMasivaService;
+        public WebHookController(ICargaMasivaService cargaMasivaService)
+        {
+            _cargaMasivaService = cargaMasivaService;
         }
         [HttpPost("UpdateStatus")]
         public async Task<IActionResult> UpdStatus(WebHookPayloadModel model)
@@ -27,7 +28,7 @@ namespace WSGClienteCM.Controllers
             sw = new StreamWriter(filepath, true);
             try
             {
-             
+
                 if (model == null)
                 {
                     response.P_NCODE = "2";
@@ -36,12 +37,48 @@ namespace WSGClienteCM.Controllers
                 }
                 else
                 {
-
                     response = await _cargaMasivaService.updateJiraState(model);
-                   
-                    //sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(model));
                     sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
-                   
+
+                    return Ok(response);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                response.P_COD_ERR = "2";
+                response.P_MESSAGE = ex.Message;
+                sw.WriteLine(DateTime.Now.ToString() + ": " + ex.Message);
+                return Ok(response);
+            }
+            finally
+            {
+                sw.Flush();
+                sw.Close();
+            }
+
+        }
+        [HttpPost("UpdateStatusSGC")]
+        public async Task<IActionResult> UpdStatusSGC(WebHookPayloadModel model)
+        {
+            ResponseViewModel response = new ResponseViewModel();
+            string filepath = AppDomain.CurrentDomain.BaseDirectory + "\\LogFile.txt";
+            StreamWriter sw = null;
+            sw = new StreamWriter(filepath, true);
+            try
+            {
+
+                if (model == null)
+                {
+                    response.P_NCODE = "2";
+                    response.P_MESSAGE = "No se encontró el modelo";
+                    return Ok(response);
+                }
+                else
+                {
+                    response = await _cargaMasivaService.updateJiraStateSGC(model);
+                    sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
+
                     return Ok(response);
                 }
 

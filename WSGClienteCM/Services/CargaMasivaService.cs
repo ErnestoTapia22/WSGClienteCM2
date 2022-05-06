@@ -1031,5 +1031,23 @@ namespace WSGClienteCM.Services
             return resulDate;
         }
 
+        public async Task<ResponseViewModel> updateJiraStateSGC(WebHookPayloadModel model)
+        {
+            ResponseViewModel res = new ResponseViewModel();
+            try
+            {
+
+                res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id);
+                return res;
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+                return res;
+            }
+
+        }
+
     }
 }
