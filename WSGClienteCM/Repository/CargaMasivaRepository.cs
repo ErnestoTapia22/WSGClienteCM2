@@ -855,10 +855,8 @@ namespace WSGClienteCM.Repository
 
                 using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TICKET_WH"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
                 {
-
                     response.P_COD_ERR = P_NCODE.Value.ToString();
                     response.P_MESSAGE = P_SMESSAGE.Value.ToString();
-
                 }
 
             }
@@ -869,7 +867,39 @@ namespace WSGClienteCM.Repository
             return response;
 
         }
+        public async Task<ResponseViewModel> updateStateObservation(string jiraCode, string jiraStatus)
+        {
 
+            List<OracleParameter> parameter = new List<OracleParameter>();
+            ResponseViewModel response = new ResponseViewModel();
+
+            try
+            {
+                parameter.Add(new OracleParameter("P_SCODE_JIRA", OracleDbType.Varchar2, jiraCode, ParameterDirection.Input));
+                parameter.Add(new OracleParameter("P_STATUS_JIRA", OracleDbType.Varchar2, jiraStatus, ParameterDirection.Input));
+                OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
+                OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
+
+                P_NCODE.Size = 4000;
+                P_SMESSAGE.Size = 4000;
+
+                parameter.Add(P_NCODE);
+                parameter.Add(P_SMESSAGE);
+
+                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "UPD_TICKET_WH_OBSERVATION"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
+                {
+                    response.P_COD_ERR = P_NCODE.Value.ToString();
+                    response.P_MESSAGE = P_SMESSAGE.Value.ToString();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            return response;
+
+        }
         //DEV CY 11-04-22 INI
         public async Task<TicketState> GetTicketState(string code)
         {

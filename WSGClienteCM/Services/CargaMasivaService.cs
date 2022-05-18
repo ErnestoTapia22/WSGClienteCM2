@@ -782,6 +782,7 @@ namespace WSGClienteCM.Services
         public async Task<ResponseViewModel> updateJiraState(WebHookPayloadModel model)
         {
             ResponseViewModel res = new ResponseViewModel();
+            ResponseViewModel res2 = new ResponseViewModel();
             string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700", "10206", "10701", "12000" };
             string derivationArea = "";
             string denvio = "0";
@@ -935,13 +936,12 @@ namespace WSGClienteCM.Services
                                 resTicketService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
                             }
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
-
                         }
                         //DEV CY 11-04-22 FIN
 
                         break;
                     case "TRE":
-                        if (model.issue?.fields?.status?.id == "10206" || model.issue?.fields?.status?.id == "10701" || model.issue?.fields?.status?.id == "12000") // en progreso, confirmado, pendiente de pago
+                        if (model.issue?.fields?.status?.id == "10701" || model.issue?.fields?.status?.id == "12000" || model.issue?.fields?.status?.id == "11500" || model.issue?.fields?.status?.id == "10206") //confirmado, pendiente de pago, Pendiente de Aprobación, en progreso
                         {
                             model.issue.fields.status.id = "11400"; // pasa a derivado
                             if (model.issue?.fields?.customfield_12314 != null && model.issue?.fields?.customfield_12314 != "")
@@ -957,13 +957,13 @@ namespace WSGClienteCM.Services
                             {
                                 derivationArea = model.issue?.fields?.customfield_12308?[0].value;
                             }
-
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
+                            res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
                         }
-                        else if (model.issue?.fields?.status?.id == "10707" || model.issue?.fields?.status?.id == "10218" || model.issue?.fields?.status?.id == "10211") //observado, rechazado, cerrado
+                        else if (model.issue?.fields?.status?.id == "10218" || model.issue?.fields?.status?.id == "10707" || model.issue?.fields?.status?.id == "10211") // rechazado, observado, cerrado
                         {
                             denvio = "1";
-                            model.issue.fields.status.id = "12001";
+                            model.issue.fields.status.id = "12001"; // cerrado 360
 
                             if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
                             {
@@ -975,9 +975,21 @@ namespace WSGClienteCM.Services
                             }
                             dateFired = parseFormatDate(dateParsed);
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
-
+                            res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
                         }
 
+                        //denvio = "1";
+                        //model.issue.fields.status.id = "12001"; // cerrado 360
+
+                        //if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
+                        //{
+                        //    dates = model.issue?.fields?.customfield_12319;//.Substring(0, 19);
+                        //    if (dates.Length > 0)
+                        //    {
+                        //        dateParsed = dates;
+                        //    }
+                        //}
+                        //dateFired = parseFormatDate(dateParsed);
                         break;
                     case "ADB":
                         // res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
@@ -987,8 +999,6 @@ namespace WSGClienteCM.Services
                         break;
 
                 }
-
-
             }
             catch (Exception ex)
             {

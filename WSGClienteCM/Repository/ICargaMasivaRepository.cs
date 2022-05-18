@@ -23,6 +23,7 @@ namespace WSGClienteCM.Repository
         Task<TramaRespuestaCargaMasivaResponse> ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO);
         //hcama@mg 26.01.2021 fin 
         Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus, string derivationArea, string denvio, string dateFired, string attendedDate);
+        Task<ResponseViewModel> updateStateObservation(string jiraCode, string jiraStatus);
         Task<ResponseViewModel> updateState(string jiraCode, string jiraStatus);
 
         //DEVCY 11-04-22 ini
