@@ -783,7 +783,7 @@ namespace WSGClienteCM.Services
         {
             ResponseViewModel res = new ResponseViewModel();
             ResponseViewModel res2 = new ResponseViewModel();
-            string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700", "10206", "10701", "12000" };
+            string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700", "10206", "10701", "12000", "10707", "11500" };
             string derivationArea = "";
             string denvio = "0";
             string dateFired = "";
@@ -908,10 +908,10 @@ namespace WSGClienteCM.Services
                         }
                         else if (model.issue?.fields?.status?.id == "11401") // atendido
                         {
-                            denvio = "1";
-                            if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
+                            attendedDate = "1";
+                            if (model.issue?.fields?.customfield_12315 != null && model.issue?.fields?.customfield_12315 != "")
                             {
-                                dates = model.issue?.fields?.customfield_12427;//.Substring(0,19);
+                                dates = model.issue?.fields?.customfield_12315;//.Substring(0,19);
                                 if (dates.Length > 0)
                                 {
                                     dateParsed = dates;
@@ -943,40 +943,16 @@ namespace WSGClienteCM.Services
                     case "TRE":
                         if (model.issue?.fields?.status?.id == "10701" || model.issue?.fields?.status?.id == "12000" || model.issue?.fields?.status?.id == "11500" || model.issue?.fields?.status?.id == "10206") //confirmado, pendiente de pago, Pendiente de Aprobación, en progreso
                         {
-                            //model.issue.fields.status.id = "11400"; // pasa a derivado
-                            //if (model.issue?.fields?.customfield_12314 != null && model.issue?.fields?.customfield_12314 != "")
-                            //{
-                            //    dates = model.issue?.fields?.customfield_12314;//.Substring(0,19);
-                            //    if (dates.Length > 0)
-                            //    {
-                            //        dateParsed = dates;
-                            //    }
-                            //}
-                            // dateFired = parseFormatDate(dateParsed);
-                            //if (model.issue?.fields?.customfield_12308?.Count > 0)
-                            //{
-                            //    derivationArea = model.issue?.fields?.customfield_12308?[0].value;
-                            //}
+
+                            res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
                             res = await _cargaMasivaRepository.updateState(model.issue.key, "11400", derivationArea, denvio, dateFired, attendedDate);
-                            if (res.P_COD_ERR == "0")
-                            {
-                                res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
-                            }
+
                         }
-                        else if (model.issue?.fields?.status?.id == "10218" || model.issue?.fields?.status?.id == "10707" || model.issue?.fields?.status?.id == "10211") // rechazado, observado, cerrado
+                        else if (model.issue?.fields?.status?.id == "10218" || model.issue?.fields?.status?.id == "10211") // rechazado, cerrado
                         {
                             denvio = "1";
-                            //model.issue.fields.status.id = "12001"; // cerrado 360
 
-                            if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
-                            {
-                                dates = model.issue?.fields?.customfield_12319;//.Substring(0, 19);
-                                if (dates.Length > 0)
-                                {
-                                    dateParsed = dates;
-                                }
-                            }
-                            dateFired = parseFormatDate(dateParsed);
+                            dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
                             res = await _cargaMasivaRepository.updateState(model.issue.key, "12001", derivationArea, denvio, dateFired, attendedDate);
                             if (res.P_COD_ERR == "0")
                             {
@@ -984,37 +960,37 @@ namespace WSGClienteCM.Services
                             }
 
                         }
-                        else if (model.issue?.fields?.status?.id == "11401")
-                        { // atendido
-                            denvio = "1";
-                            //if (model.issue?.fields?.customfield_12427 != null && model.issue?.fields?.customfield_12427 != "")
-                            //{
-                            //    dates = model.issue?.fields?.customfield_12427;//.Substring(0,19);
-                            //    if (dates.Length > 0)
-                            //    {
-                            //        dateParsed = dates;
-                            //    }
-                            //}
+                        else if (model.issue?.fields?.status?.id == "10707") //observado
+                        {
+
+                            res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue?.fields?.status?.id, derivationArea, denvio, dateFired, attendedDate);
+                            if (res.P_COD_ERR == "0")
+                            {
+                                res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                            }
+                        }
+                        else if (model.issue?.fields?.status?.id == "11401")  // atendido
+                        {
+                            attendedDate = "1";
+
                             dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
 
                         }
+                        else if (model.issue?.fields?.status?.id == "10212") //Cancelado
+                        {
 
-                        //denvio = "1";
-                        //model.issue.fields.status.id = "12001"; // cerrado 360
+                            denvio = "1";
 
-                        //if (model.issue?.fields?.customfield_12319 != null && model.issue?.fields?.customfield_12319 != "")
-                        //{
-                        //    dates = model.issue?.fields?.customfield_12319;//.Substring(0, 19);
-                        //    if (dates.Length > 0)
-                        //    {
-                        //        dateParsed = dates;
-                        //    }
-                        //}
-                        //dateFired = parseFormatDate(dateParsed);
+                            dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+                            res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue?.fields?.status?.id, derivationArea, denvio, dateFired, attendedDate);
+
+
+                        }
+
                         break;
                     case "ADB":
-                        // res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
+
                         break;
                     default:
 
