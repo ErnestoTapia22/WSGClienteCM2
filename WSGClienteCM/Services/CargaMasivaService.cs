@@ -788,7 +788,7 @@ namespace WSGClienteCM.Services
             string denvio = "0";
             string dateFired = "";
             string attendedDate = "0";
-
+            CultureInfo culture = new CultureInfo("es-PE");
 
 
             if (!statusValid.Contains(model.issue.fields.status.id))
@@ -952,7 +952,7 @@ namespace WSGClienteCM.Services
                         {
                             denvio = "1";
 
-                            dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+                            dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
                             res = await _cargaMasivaRepository.updateState(model.issue.key, "12001", derivationArea, denvio, dateFired, attendedDate);
                             if (res.P_COD_ERR == "0")
                             {
@@ -973,7 +973,7 @@ namespace WSGClienteCM.Services
                         {
                             attendedDate = "1";
 
-                            dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+                            dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
 
                         }
@@ -982,7 +982,7 @@ namespace WSGClienteCM.Services
 
                             denvio = "1";
 
-                            dateFired = parseFormatDate(DateTime.Now.ToString("dd/MM/yyyy hh:mm:ss tt"));
+                            dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue?.fields?.status?.id, derivationArea, denvio, dateFired, attendedDate);
 
 
