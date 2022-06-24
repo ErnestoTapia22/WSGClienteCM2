@@ -29,13 +29,5 @@ namespace WSGClienteCM.Repository
         //DEVCY 11-04-22 ini
         Task<TicketState> GetTicketState(string code);
         //DEVCY 11-04-22 fin
-
-        //DEV CY --INI
-        Task<ResponseViewModel> ValidateStateJira(string value);
-
-        Task<TicketFields> GetTicketFields(string code, string state);
-
-        Task<ResponseViewModel> updateStateAllTickets(string jiraCode, string jiraStatus, string derivationArea, string denvio, string scomment);
-        //DEV CY --FIN
     }
 }

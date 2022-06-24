@@ -18,10 +18,5 @@ namespace WSGClienteCM.Services
         //TramaRespuestaCargaMasivaResponse ObtenerTramaEnvioErrores(string P_SNOPROCESO);
         //TramaRespuestaCargaMasivaResponse ObtenerListaUsuariosEnvioTrama(string P_SNOPROCESO);
         //hcama@mg 26.01.2021 fin 
-
-        //dev CY -- INI
-        Task<ResponseViewModel> updateJiraTicketState(WebHookPayloadModel model);
-
-        //dev CY -- INI
     }
 }

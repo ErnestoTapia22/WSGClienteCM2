@@ -842,9 +842,7 @@ namespace WSGClienteCM.Repository
                 parameter.Add(new OracleParameter("P_DENVIO", OracleDbType.Varchar2, denvio, ParameterDirection.Input));
                 parameter.Add(new OracleParameter("P_DDATE", OracleDbType.Varchar2, dateFired, ParameterDirection.Input));
                 parameter.Add(new OracleParameter("P_DATTENDEDDATE", OracleDbType.Varchar2, attendedDate, ParameterDirection.Input));
-                //DEV CY --INI
-                parameter.Add(new OracleParameter("P_SCOMMENT", OracleDbType.Varchar2, "", ParameterDirection.Input));
-                //DEV CY --FIN
+
                 OracleParameter P_NCODE = new OracleParameter("P_NCODE", OracleDbType.Varchar2, ParameterDirection.Output);
                 OracleParameter P_SMESSAGE = new OracleParameter("P_SMESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
 
@@ -976,122 +974,5 @@ namespace WSGClienteCM.Repository
 
         }
 
-        //DEV CY -- INI
-        public async Task<ResponseViewModel> ValidateStateJira(string value)
-        {
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            ResponseViewModel response = new ResponseViewModel();
-
-            try
-            {
-                parameter.Add(new OracleParameter("P_STYPE", OracleDbType.Varchar2, value, ParameterDirection.Input));
-
-                OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
-                OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Varchar2, ParameterDirection.Output);
-
-                P_NCODE.Size = 4000;
-                P_SMESSAGE.Size = 4000;
-
-                parameter.Add(P_SMESSAGE);
-                parameter.Add(P_NCODE);
-               
-
-
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "PRC_VALIDATE_TICKET_TYPE"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
-                {
-
-                    response.P_COD_ERR = P_NCODE.Value.ToString();
-                    response.P_MESSAGE = P_SMESSAGE.Value.ToString();
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return response;
-        }
-
-        public async Task<TicketFields> GetTicketFields(string code,string state)
-        {
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            TicketFields response = new TicketFields();
-
-            try
-            {
-                parameter.Add(new OracleParameter("P_SKEY", OracleDbType.Varchar2, code, ParameterDirection.Input));
-                parameter.Add(new OracleParameter("P_SSTATUS", OracleDbType.Varchar2, state, ParameterDirection.Input));
-                OracleParameter C_TABLE = new OracleParameter("RC1", OracleDbType.RefCursor, ParameterDirection.Output);
-
-                parameter.Add(C_TABLE);
-
-
-
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "PRC_GET_FIELDS_TICKET"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
-                {
-
-                    while (dr.Read())
-                    {
-                        TicketFields item = new TicketFields();
-                        item.DFIELD = dr["DFIELD"].ToString();
-                        item.IDSTATUS = dr["IDSTATUS"].ToString();
-                        item.SDEAREA = dr["SDEAREA"].ToString();
-                        item.DENVIO = dr["DENVIO"].ToString();
-                        item.SATDATE = dr["SATDATE"].ToString();
-                        item.SOBS_FLAG = dr["SFLAG"].ToString();
-                        response = item;
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return response;
-        }
-
-        public async Task<ResponseViewModel> updateStateAllTickets(string jiraCode, string jiraStatus, string derivationArea, string denvio, string scomment)
-        {
-
-            List<OracleParameter> parameter = new List<OracleParameter>();
-            ResponseViewModel response = new ResponseViewModel();
-
-            try
-            {
-                parameter.Add(new OracleParameter("P_SKEY", OracleDbType.Varchar2, jiraCode, ParameterDirection.Input));
-                parameter.Add(new OracleParameter("P_SSTATUS", OracleDbType.Varchar2, jiraStatus, ParameterDirection.Input));
-                parameter.Add(new OracleParameter("P_SDERARE", OracleDbType.Varchar2, derivationArea, ParameterDirection.Input));
-                parameter.Add(new OracleParameter("P_DFIRED", OracleDbType.Varchar2, denvio, ParameterDirection.Input));
-                parameter.Add(new OracleParameter("P_SCOMMENT", OracleDbType.Varchar2, scomment, ParameterDirection.Input));
-
-
-                OracleParameter P_SMESSAGE = new OracleParameter("P_MESSAGE", OracleDbType.Varchar2, ParameterDirection.Output);
-                OracleParameter P_NCODE = new OracleParameter("P_COD_ERR", OracleDbType.Varchar2, ParameterDirection.Output);
-
-                P_NCODE.Size = 4000;
-                P_SMESSAGE.Size = 4000;
-
-
-                parameter.Add(P_SMESSAGE);
-                parameter.Add(P_NCODE);
-
-
-                using (OracleDataReader dr = (OracleDataReader)await _connectionBase.ExecuteByStoredProcedureVTAsync(string.Format("{0}.{1}", Package4, "PRC_TICKET_TYPE_TOUPDATE"), parameter, ConnectionBase.enuTypeDataBase.OracleVTime))
-                {
-                    response.P_COD_ERR = P_NCODE.Value.ToString();
-                    response.P_MESSAGE = P_SMESSAGE.Value.ToString();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
-            return response;
-
-        }
-        //DEV CY --FIN
     }
 }
