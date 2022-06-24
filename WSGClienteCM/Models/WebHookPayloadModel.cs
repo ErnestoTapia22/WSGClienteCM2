@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System;
 
 namespace WSGClienteCM.Models
 {
@@ -76,9 +77,22 @@ namespace WSGClienteCM.Models
         {
             get; set;
         }
+        //DEV CY -- INI
+        public string customfield_13400
+        {
+            get; set;
+        }
 
-
-
+        public string customfield_13409
+        {
+            get; set;
+        }
+        
+        public FieldObjectComment comment
+        {
+            get; set;
+        }
+        //DEV CY -- FIN
     }
     public class WebHookStatus : BaseWebHook
     {
@@ -124,6 +138,33 @@ namespace WSGClienteCM.Models
             get; set;
         }
     }
+
+    //DEV CY -- INI
+
+    public class FieldObjectComment : CommentsField
+    {
+        public List<CommentsField> comments
+        {
+            get; set;
+        }
+    }
+    public class CommentsField
+    {
+        
+        public string created
+        {
+            get; set;
+        }
+        public string updated
+        {
+            get; set;
+        }
+        public string body
+        {
+            get; set;
+        }
+    }
+    //DEV CY -- FIN
 
     //fin ernesto.tapia@materiagris.pe
 }

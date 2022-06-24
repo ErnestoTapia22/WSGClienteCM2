@@ -37,7 +37,10 @@ namespace WSGClienteCM.Controllers
                 }
                 else
                 {
-                    response = await _cargaMasivaService.updateJiraState(model);
+                    //DEV CY --INI
+                    //response = await _cargaMasivaService.updateJiraState(model);
+                    response = await _cargaMasivaService.updateJiraTicketState(model);
+                    //DEV CY --FIN
                     sw.WriteLine(DateTime.Now.ToString() + ": " + JsonConvert.SerializeObject(response));
 
                     return Ok(response);

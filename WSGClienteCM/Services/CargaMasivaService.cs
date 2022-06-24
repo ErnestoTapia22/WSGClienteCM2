@@ -783,7 +783,7 @@ namespace WSGClienteCM.Services
         {
             ResponseViewModel res = new ResponseViewModel();
             ResponseViewModel res2 = new ResponseViewModel();
-            string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700", "10206", "10701", "12000", "10707", "11500" };
+            string[] statusValid = { "10212", "11400", "10211", "10400", "11401", "10700", "10206", "10701", "12000", "10707", "11500", "10218" };
             string derivationArea = "";
             string denvio = "0";
             string dateFired = "";
@@ -923,7 +923,7 @@ namespace WSGClienteCM.Services
                         //DEV CY 11-04-22 INI
                         else if (model.issue?.fields?.status?.id == "10700") // clasificado
                         {
-                            dynamic respState = new ExpandoObject();
+                            /*dynamic respState = new ExpandoObject();
                             respState = await _cargaMasivaRepository.GetTicketState(model.issue.key);
                             PostRequestTicket postRequestTicket = new PostRequestTicket
                             {
@@ -934,7 +934,7 @@ namespace WSGClienteCM.Services
                                 string result = await PostRequest(_appSettings.TicketService, postRequestTicket);
                                 ResponseViewModel resTicketService = new ResponseViewModel();
                                 resTicketService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
-                            }
+                            }*/
                             res = await _cargaMasivaRepository.updateState(model.issue.key, model.issue.fields.status.id, derivationArea, denvio, dateFired, attendedDate);
                         }
                         //DEV CY 11-04-22 FIN
@@ -1056,6 +1056,223 @@ namespace WSGClienteCM.Services
             }
 
         }
+        //DEV CY --INI
+        public async Task<ResponseViewModel> updateJiraTicketState(WebHookPayloadModel model)
+        {
+            ResponseViewModel res = new ResponseViewModel();
+            ResponseViewModel res2 = new ResponseViewModel();
+            ResponseViewModel stateResp = new ResponseViewModel();
+            string derivationArea = "";
+            string denvio = "0";
+            string dateFired = "";
+            string attendedDate = "0";
+            string valorDenvio = "";
+            string valorAreaDeriv = "";
+            string statusIdTemp = model.issue.fields.status.id;
+            string commentTicket = "";
+            CultureInfo culture = new CultureInfo("es-PE");
 
+            if (model.issue?.key == null || model.issue?.key == "")
+            {
+                res.P_NCODE = "2";
+                res.P_SMESSAGE = "No existe el código de Jira";
+                return res;
+            }
+            else
+            {
+                stateResp = await _cargaMasivaRepository.ValidateStateJira(model.issue.fields.status.id);
+                if (stateResp.P_COD_ERR == "2")
+                {
+                    res.P_NCODE = "2";
+                    res.P_SMESSAGE = "Este estado del issue no se maneja : " + model.issue.fields.status.id;
+                    return res;
+                }
+                
+            }
+            string dateParsed = "";
+            string dates = "";
+            try
+            {
+                dynamic respFields = new ExpandoObject();
+                respFields = await _cargaMasivaRepository.GetTicketFields(model.issue.key, model.issue.fields.status.id);
+                
+                try
+                {
+                    valorDenvio = model.issue?.fields.GetType().GetProperty(respFields.DFIELD).GetValue(model.issue?.fields).ToString();
+                }
+                catch (Exception ex)
+                {
+                    valorDenvio = "";
+                }
+                try
+                {
+                    //derivationArea = model.issue?.fields.GetType().GetProperty(respFields.SDEAREA).GetValue(model.issue?.fields).ToString();
+
+                    
+
+                    if (respFields.SDEAREA == "customfield_12308")
+                    {
+                        var valor = model.issue?.fields.GetType().GetProperty(respFields.SDEAREA).GetValue(model.issue?.fields);
+                        if (valor.Count > 0)
+                        {
+                            derivationArea = valor[0].value;
+                        }
+                    }
+                    else
+                    {
+                        if (respFields.SDEAREA == "comment")
+                        {
+                            var valor = model.issue?.fields.GetType().GetProperty(respFields.SDEAREA).GetValue(model.issue?.fields);
+                            if (valorDenvio != null && valorDenvio != "")
+                            {
+                                dates = valorDenvio;
+                                if (dates.Length > 0)
+                                {
+                                    dateParsed = dates;
+                                }
+                            }
+                            dateFired = parseFormatDate(dateParsed);
+                            var matrizforDate = dateFired.Split("/");
+                            var matrizHora = matrizforDate[2].Substring(5,8).Split(":");
+                            //El ultimo comentario entre los que tienen fecha igual a customfield_13400
+                            for(int i = 0; i < valor.comments.Count; i++)
+                            {
+                                valor.comments[i].created = parseFormatDate(valor.comments[i].created);
+                                var DateTemp = valor.comments[i].created.Split("/");
+                                var HoraTemp = DateTemp[2].Substring(5, 8).Split(":");
+                                if(matrizforDate[0] == DateTemp[0])
+                                {
+                                    if(matrizforDate[1] == DateTemp[1])
+                                    {
+                                        if(matrizHora[0] == HoraTemp[0])
+                                        {
+                                            if(matrizHora[1] == HoraTemp[1])
+                                            {
+                                                commentTicket = valor.comments[i].body;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            var valor = model.issue?.fields.GetType().GetProperty(respFields.SDEAREA).GetValue(model.issue?.fields);
+                            derivationArea = valor.GetType().GetProperty("value").GetValue(valor);
+                        }
+                    }
+                    
+                }
+                catch (Exception ex)
+                {
+                    derivationArea = "";
+
+                }
+                
+                //TRA
+                if (valorDenvio != null && valorDenvio != "")
+                {
+                    dates = valorDenvio;
+                    if (dates.Length > 0)
+                    {
+                        dateParsed = dates;
+                    }
+                }
+                if(respFields.DFIELD != "DateNow")
+                {
+                    if (respFields.DFIELD == "Correo")
+                    {
+                        res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, respFields.IDSTATUS, derivationArea, dateFired, commentTicket);
+                        dynamic respState = new ExpandoObject();
+                        respState = await _cargaMasivaRepository.GetTicketState(model.issue.key);
+                        PostRequestTicket postRequestTicket = new PostRequestTicket
+                        {
+                            Codigo = model.issue.key
+                        };
+                        if (respState.NCODE_JIRA != model.issue.fields.status.id)
+                        {
+                            string result = await PostRequest(_appSettings.TicketService, postRequestTicket);
+                            ResponseViewModel resTicketService = new ResponseViewModel();
+                            resTicketService = JsonConvert.DeserializeObject<ResponseViewModel>(result);
+                        }
+                    }
+                    else
+                    {
+                        dateFired = parseFormatDate(dateParsed);
+                    }
+                    
+                }
+                else
+                {
+                    dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
+                    if (respFields.SOBS_FLAG == "DENVIO_OBS")
+                    {
+                        dateFired = "";
+                    }
+                    /*else
+                    {
+                        dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
+                    }*/
+                }
+                if (respFields.SOBS_FLAG != "SSTATE" && respFields.IDSTATUS != "11400") {
+                    if(respFields.SOBS_FLAG == "REC_ATEN")
+                    {
+                        res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, model.issue.fields.status.id, derivationArea, dateFired, commentTicket);
+                    }
+                    else
+                    {
+                        if (respFields.SOBS_FLAG == "DENVIO_OBS"/* && res.P_COD_ERR == "0"*/)
+                        {
+                            if(respFields.DFIELD == "DateNow")
+                            {
+                                dateFired = DateTime.Now.ToString("MM/dd/yyyy HH:mm:ss", culture);
+                            }
+                            res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, model.issue.fields.status.id, derivationArea, dateFired, commentTicket);
+                            res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                        }
+                        else if (respFields.SOBS_FLAG == "SSTATE" && respFields.IDSTATUS == "11400")
+                        {
+                            //res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                            res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, respFields.IDSTATUS, derivationArea, dateFired, commentTicket);
+                        }
+
+                        else if(respFields.SOBS_FLAG != "DENVIO_OBS" || respFields.SOBS_FLAG != "SSTATE" && respFields.IDSTATUS != "11400")
+                        {
+                            res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, respFields.IDSTATUS, derivationArea, dateFired, commentTicket);
+                        }
+                        
+                    }
+                    
+                }
+                else
+                {
+                    if (respFields.SOBS_FLAG == "SSTATE" && respFields.IDSTATUS == "11400")
+                    {
+                        res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                    }
+                    res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, respFields.IDSTATUS, derivationArea, dateFired, commentTicket);
+                }
+                    
+                //if(respFields.SOBS_FLAG == "DENVIO_OBS"/* && res.P_COD_ERR == "0"*/)
+                //{
+                //    res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                //}
+                //else if(respFields.SOBS_FLAG == "SSTATE" && respFields.IDSTATUS == "11400")
+                //{
+                //    //res2 = await _cargaMasivaRepository.updateStateObservation(model.issue.key, model.issue.fields.status.id);
+                //    res = await _cargaMasivaRepository.updateStateAllTickets(model.issue.key, respFields.IDSTATUS, derivationArea, dateFired);
+                //}
+
+            }
+            catch (Exception ex)
+            {
+                res.P_COD_ERR = "2";
+                res.P_MESSAGE = ex.Message;
+            }
+            res.P_CAMPO = dateFired;
+            return res;
+        }
+        //DEV CY --FIN
     }
 }
